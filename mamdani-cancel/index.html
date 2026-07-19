@@ -194,6 +194,9 @@
     transition:border-color .15s ease;
   }
   .lang-pill:hover{border-color:rgba(255,255,255,0.7)}
+  .nav-right{display:flex;align-items:center;gap:28px}
+  .nav-toggle{display:none}
+  .nav-toggle:focus-visible,.nav-links a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
   /* ============ hero ============ */
   .hero{
@@ -465,24 +468,131 @@
   }
   @media (max-width:760px){
     .wrap{padding:0 20px}
-    .nav-links a{display:none}
-    .brand-text{font-size:14px}
-    .display{font-size:40px;letter-spacing:-0.025em}
+    .nav-inner{gap:10px}
+    .nav-right{gap:8px}
+    .nav-links{display:none}
+    .nav-toggle{display:inline-flex;width:44px;height:44px;align-items:center;justify-content:center;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,.38);cursor:pointer;padding:0}
+    .nav.is-open .nav-links{display:flex;flex-direction:column;align-items:stretch;gap:0;position:absolute;top:100%;left:0;right:0;background:#04244F;border-bottom:1px solid rgba(255,255,255,.14);padding:8px 20px 16px;z-index:50}
+    .nav.is-open .nav-links a{padding:14px 0;font-size:18px;color:#fff}
+    .brand{flex-shrink:1;min-width:0}
+    .brand-text{white-space:normal;font-size:13px;line-height:1.25;max-width:150px}
+    .lang-pill{min-height:44px;flex-shrink:0}
+    .display{font-size:clamp(34px,9vw,40px);line-height:1.05;letter-spacing:-0.025em}
+    .hero-copy .display{margin:16px 0 16px}
+    .hero-sub{margin-bottom:24px}
+    .hero-inner{gap:36px;padding-top:48px;padding-bottom:56px}
+    .money-card{padding:36px 24px;margin:0}
+    .money-card .kicker{margin-bottom:18px}
+    .hero-actions{flex-direction:column;align-items:stretch;gap:12px}
+    .hero-actions .btn{width:100%;min-height:48px}
     .h2{font-size:27px}
     .body-lg{font-size:18px}
     .section{padding:64px 0}
     .section-head{margin-bottom:36px}
     .subs-grid{grid-template-columns:1fr}
+    .sub-card{padding:20px}
+    .sub-card .btn{min-height:48px}
     .figure-hero{font-size:44px}
-    .money-card{padding:44px 32px}
-    .callout{padding:32px 28px}
-    .callout-total{font-size:32px}
+    .callout{flex-direction:column;align-items:flex-start;gap:20px;padding:28px 24px}
+    .callout-total{white-space:normal;font-size:32px}
+    .callout-total .tail{display:block;margin-top:6px}
     .receipt-card{padding:32px 24px 28px}
+    .receipt-row .item{min-width:0;overflow-wrap:break-word}
+    .receipt-row .amt{white-space:nowrap}
     .receipt-row.is-total .item{font-size:15px}
     .receipt-row.is-total .amt{font-size:17px}
     .fee-flag{margin-left:6px;padding:2px 7px}
     .footer-grid{grid-template-columns:1fr;gap:32px}
   }
+  @media (max-width:400px){
+    .figure-hero{font-size:36px}
+    .receipt-card{padding:28px 18px 24px}
+    .receipt-row{gap:10px}
+    .fee-flag{margin-left:4px}
+  }
+
+  /* ============ scan modal ============ */
+  .scan-overlay{
+    position:fixed;
+    inset:0;
+    z-index:100;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:rgba(4,36,79,0.66);
+  }
+  .scan-overlay[hidden]{display:none}
+  .scan-dialog{
+    position:relative;
+    background:var(--cloud);
+    color:var(--ink);
+    border-radius:var(--r-lg);
+    padding:36px 32px 32px;
+    width:100%;
+    max-width:460px;
+    box-shadow:0 48px 90px -28px rgba(1,10,26,0.6),0 14px 30px -12px rgba(1,10,26,0.4);
+  }
+  .scan-close{
+    position:absolute;
+    top:10px;
+    right:10px;
+    width:44px;
+    height:44px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    background:transparent;
+    border:none;
+    border-radius:var(--r-md);
+    color:var(--slate);
+    cursor:pointer;
+  }
+  .scan-close:hover{color:var(--ink)}
+  .scan-dialog .label-caps{color:var(--slate);display:block;margin-bottom:12px}
+  .scan-dialog .h3{margin-bottom:20px}
+  .scan-track{
+    height:8px;
+    border-radius:9999px;
+    background:var(--fog);
+    overflow:hidden;
+    margin-bottom:16px;
+  }
+  .scan-bar{
+    height:100%;
+    width:0%;
+    background:var(--liberty);
+    border-radius:9999px;
+    transition:width .55s ease;
+  }
+  .scan-status{font-size:16px;color:var(--slate);min-height:26px}
+  .scan-found{font-size:18px;margin-bottom:6px}
+  .scan-found .mono{font-weight:700}
+  .scan-figure{
+    font-family:var(--font-mono);
+    font-weight:700;
+    font-size:30px;
+    line-height:1.1;
+    font-variant-numeric:tabular-nums;
+    letter-spacing:-0.02em;
+    margin-bottom:22px;
+  }
+  .scan-figure .tail{
+    font-family:var(--font-body);
+    font-weight:400;
+    font-size:18px;
+    letter-spacing:0;
+    color:var(--slate);
+  }
+  .scan-close:focus-visible,.scan-dialog .btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  #subscriptions.is-highlight .subs-grid{outline:3px solid var(--gold);outline-offset:10px;border-radius:var(--r-sm)}
+
+  /* ============ cancel confirm ============ */
+  .sub-confirm{border-top:1px solid var(--fog);padding-top:14px;margin-top:6px}
+  .sub-confirm p{font-size:16px;font-weight:700;line-height:1.45;margin-bottom:12px}
+  .sub-confirm p .mono{font-weight:700}
+  .sub-confirm-row{display:flex;gap:10px;flex-wrap:wrap}
+  .sub-confirm-row .btn{flex:1 1 auto;min-height:44px;padding:10px 14px;font-size:15px}
 
   /* ============ reduced motion ============ */
   @media (prefers-reduced-motion:reduce){
@@ -503,16 +613,23 @@
       <span class="nyc-mark">NYC</span>
       <span class="brand-text">Consumer &amp; Worker Protection</span>
     </a>
-    <div class="nav-links">
-      <a href="#how">How it works</a>
-      <a href="#subscriptions">My subscriptions</a>
-      <a href="#report">Report a fee</a>
+    <div class="nav-right">
+      <div class="nav-links" id="nav-menu">
+        <a href="#how">How it works</a>
+        <a href="#subscriptions">My subscriptions</a>
+        <a href="#report">Report a fee</a>
+      </div>
       <button class="lang-pill" type="button" aria-label="Change language">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
           <circle cx="12" cy="12" r="10"/>
           <path d="M2 12h20M12 2c2.5 2.6 4 6.2 4 10s-1.5 7.4-4 10c-2.5-2.6-4-6.2-4-10s1.5-7.4 4-10z"/>
         </svg>
         EN
+      </button>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu" aria-label="Menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
       </button>
     </div>
   </div>
@@ -530,7 +647,7 @@
         every seller show the real price — before you pay.
       </p>
       <div class="hero-actions rise d4">
-        <a class="btn btn-primary" href="#subscriptions">Scan my subscriptions</a>
+        <a class="btn btn-primary" id="scan-btn" href="#subscriptions">Scan my subscriptions</a>
         <a class="btn btn-secondary" href="#how">See how it works</a>
       </div>
     </div>
@@ -555,13 +672,13 @@
       </div>
 
       <div class="subs-grid rise d6">
-        <article class="sub-card">
+        <article class="sub-card" data-service="StreamMax+" data-annual="216">
           <div>
             <h3 class="h3">StreamMax+</h3>
             <p class="sub-price mono">$17.99<span class="per">/mo</span></p>
           </div>
           <p class="sub-note">Renews on the 3rd · raised your price twice this year.</p>
-          <a class="btn btn-primary btn-block" href="#">Cancel</a>
+          <button class="btn btn-primary btn-block sub-cancel" type="button">Cancel</button>
         </article>
 
         <article class="sub-card is-done">
@@ -578,13 +695,13 @@
           </span>
         </article>
 
-        <article class="sub-card">
+        <article class="sub-card" data-service="NewsWall Daily" data-annual="120">
           <div>
             <h3 class="h3">NewsWall Daily</h3>
             <p class="sub-price mono">$9.99<span class="per">/mo</span></p>
           </div>
           <p class="sub-note">Renews monthly · your free trial converted in March.</p>
-          <a class="btn btn-primary btn-block" href="#">Cancel</a>
+          <button class="btn btn-primary btn-block sub-cancel" type="button">Cancel</button>
         </article>
       </div>
 
@@ -593,7 +710,7 @@
           <span class="label-caps">Your running total</span>
           <p class="callout-sub">Every cancellation moves money back where it belongs — your pocket.</p>
         </div>
-        <p class="callout-total">$462<span class="tail"> / yr saved</span></p>
+        <p class="callout-total" aria-live="polite"><span id="total-amt">$462</span><span class="tail"> / yr saved</span></p>
       </div>
     </div>
   </section>
@@ -690,6 +807,165 @@
     </div>
   </div>
 </footer>
+
+<!-- ================= SCAN MODAL ================= -->
+<div class="scan-overlay" id="scan-overlay" hidden>
+  <div class="scan-dialog" role="dialog" aria-modal="true" aria-labelledby="scan-title">
+    <button class="scan-close" type="button" aria-label="Close">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+        <path d="M6 6l12 12M18 6L6 18"/>
+      </svg>
+    </button>
+    <span class="label-caps">Subscription scan</span>
+    <h2 class="h3" id="scan-title">Scanning your accounts</h2>
+    <div class="scan-stage">
+      <div class="scan-track" aria-hidden="true"><div class="scan-bar"></div></div>
+      <p class="scan-status" aria-live="polite">Connecting to your accounts…</p>
+    </div>
+    <div class="scan-result" hidden>
+      <p class="scan-found">Found <span class="mono">3</span> recurring charges</p>
+      <p class="scan-figure">up to $462<span class="tail">/yr recoverable</span></p>
+      <button class="btn btn-primary btn-block" id="scan-review" type="button">Review them &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var rm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---- mobile nav ---- */
+  var nav = document.querySelector(".nav");
+  var toggle = document.querySelector(".nav-toggle");
+  function closeNav(){ nav.classList.remove("is-open"); toggle.setAttribute("aria-expanded","false"); }
+  toggle.addEventListener("click", function(){
+    var open = nav.classList.toggle("is-open");
+    toggle.setAttribute("aria-expanded", String(open));
+  });
+  nav.addEventListener("keydown", function(e){
+    if (e.key === "Escape" && nav.classList.contains("is-open")) { closeNav(); toggle.focus(); }
+  });
+  document.querySelectorAll("#nav-menu a").forEach(function(a){ a.addEventListener("click", closeNav); });
+
+  /* ---- running total ---- */
+  var totalEl = document.getElementById("total-amt");
+  var total = 462;
+
+  /* ---- cancel buttons ---- */
+  document.querySelectorAll(".sub-cancel").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var card = btn.closest(".sub-card");
+      if (card.querySelector(".sub-confirm")) return;
+      var svc = card.getAttribute("data-service");
+      var amt = parseInt(card.getAttribute("data-annual"), 10);
+      var box = document.createElement("div");
+      box.className = "sub-confirm";
+      box.innerHTML =
+        '<p>Cancel ' + svc + '? You’ll save <span class="mono">$' + amt + '</span>/yr.</p>' +
+        '<div class="sub-confirm-row">' +
+          '<button type="button" class="btn btn-primary confirm-yes">Yes, cancel</button>' +
+          '<button type="button" class="btn btn-secondary confirm-keep">Keep it</button>' +
+        '</div>';
+      card.appendChild(box);
+      box.querySelector(".confirm-yes").focus();
+      box.querySelector(".confirm-keep").addEventListener("click", function(){
+        box.remove(); btn.focus();
+      });
+      box.querySelector(".confirm-yes").addEventListener("click", function(){
+        box.remove();
+        btn.remove();
+        card.classList.add("is-done");
+        var badge = document.createElement("span");
+        badge.className = "badge-saved";
+        badge.setAttribute("role", "status");
+        badge.innerHTML =
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+          '<path d="M20 6L9 17l-5-5"/></svg>' +
+          'CANCELED · You saved $' + amt + '/yr';
+        card.appendChild(badge);
+        total += amt;
+        totalEl.textContent = "$" + total;
+      });
+    });
+  });
+
+  /* ---- scan modal ---- */
+  var overlay = document.getElementById("scan-overlay");
+  var dialog = overlay.querySelector(".scan-dialog");
+  var stage = overlay.querySelector(".scan-stage");
+  var result = overlay.querySelector(".scan-result");
+  var bar = overlay.querySelector(".scan-bar");
+  var statusEl = overlay.querySelector(".scan-status");
+  var title = document.getElementById("scan-title");
+  var scanBtn = document.getElementById("scan-btn");
+  var closeBtn = overlay.querySelector(".scan-close");
+  var reviewBtn = document.getElementById("scan-review");
+  var timers = [];
+  var steps = [
+    ["Connecting to your accounts…", 28],
+    ["Reading recurring charges…", 62],
+    ["Flagging price hikes & trials…", 88]
+  ];
+
+  function finishScan(){
+    bar.style.width = "100%";
+    title.textContent = "Scan complete";
+    stage.hidden = true;
+    result.hidden = false;
+    reviewBtn.focus();
+  }
+  function openScan(e){
+    e.preventDefault();
+    overlay.hidden = false;
+    if (rm) { finishScan(); return; }
+    title.textContent = "Scanning your accounts";
+    stage.hidden = false;
+    result.hidden = true;
+    bar.style.width = "0%";
+    statusEl.textContent = steps[0][0];
+    closeBtn.focus();
+    steps.forEach(function(s, i){
+      timers.push(setTimeout(function(){
+        statusEl.textContent = s[0];
+        bar.style.width = s[1] + "%";
+      }, i * 620));
+    });
+    timers.push(setTimeout(finishScan, 2000));
+  }
+  function closeScan(refocus){
+    timers.forEach(clearTimeout);
+    timers = [];
+    overlay.hidden = true;
+    if (refocus !== false) scanBtn.focus();
+  }
+  scanBtn.addEventListener("click", openScan);
+  closeBtn.addEventListener("click", function(){ closeScan(); });
+  overlay.addEventListener("click", function(e){ if (e.target === overlay) closeScan(); });
+  document.addEventListener("keydown", function(e){
+    if (overlay.hidden) return;
+    if (e.key === "Escape") { closeScan(); return; }
+    if (e.key !== "Tab") return;
+    var focusables = Array.prototype.filter.call(
+      dialog.querySelectorAll("button"),
+      function(el){ return el.offsetParent !== null; }
+    );
+    if (!focusables.length) return;
+    var first = focusables[0], last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+  reviewBtn.addEventListener("click", function(){
+    closeScan(false);
+    var section = document.getElementById("subscriptions");
+    section.scrollIntoView({ behavior: rm ? "auto" : "smooth" });
+    section.classList.add("is-highlight");
+    setTimeout(function(){ section.classList.remove("is-highlight"); }, 1800);
+    var firstCancel = section.querySelector(".sub-cancel");
+    if (firstCancel) firstCancel.focus({ preventScroll: true });
+  });
+})();
+</script>
 
 </body>
 </html>
