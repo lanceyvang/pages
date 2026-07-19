@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cancel the traps. Keep your money. — NYC Consumer &amp; Worker Protection</title>
+<meta name="description" content="New York City's click-to-cancel and all-in pricing rules are live. Find the subscriptions quietly billing you, cancel them in one tap, and see the real price up front.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Public+Sans:wght@400;600;700&family=Space+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  /* ============ EMPIRE CLEAR — design tokens ============ */
+  :root{
+    --ink:#0C1826;
+    --slate:#5A6472;
+    --paper:#F8F6F1;
+    --cloud:#FFFFFF;
+    --fog:#E4E1D8;
+    --harbor:#04244F;
+    --liberty:#1A5FD0;
+    --liberty-deep:#123F91;
+    --gold:#F5A11E;
+    --gold-tint:#FCEBCB;
+    --green:#1F9D6B;
+    --green-deep:#0B5138;
+    --green-tint:#DCF1E7;
+    --r-sm:6px;
+    --r-md:10px;
+    --r-lg:16px;
+    --r-xl:24px;
+    --font-display:'Space Grotesk',sans-serif;
+    --font-body:'Public Sans',sans-serif;
+    --font-mono:'Space Mono',monospace;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:18px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  ::selection{background:var(--gold);color:var(--ink)}
+  img,svg{display:block}
+  a{text-decoration:none}
+
+  .wrap{max-width:1200px;margin:0 auto;padding:0 40px}
+  .mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+
+  /* ============ typography ============ */
+  .display{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:60px;
+    line-height:1.0;
+    letter-spacing:-0.03em;
+  }
+  .h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:32px;
+    line-height:1.1;
+    letter-spacing:-0.02em;
+  }
+  .h3{
+    font-family:var(--font-body);
+    font-weight:700;
+    font-size:22px;
+    line-height:1.25;
+    letter-spacing:-0.01em;
+  }
+  .body-lg{font-size:20px;line-height:1.6;font-weight:400}
+  .label-caps{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:13px;
+    line-height:1.0;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+  }
+  .figure-hero{
+    font-family:var(--font-mono);
+    font-weight:700;
+    font-size:52px;
+    line-height:1.0;
+    font-variant-numeric:tabular-nums;
+  }
+
+  .eyebrow{color:rgba(255,255,255,0.92)}
+  .eyebrow::after{
+    content:"";
+    display:block;
+    width:48px;
+    height:3px;
+    background:var(--gold);
+    border-radius:2px;
+    margin-top:14px;
+  }
+
+  /* ============ focus ============ */
+  :focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+
+  .skip{
+    position:absolute;
+    left:16px;
+    top:-64px;
+    background:var(--cloud);
+    color:var(--ink);
+    font-weight:700;
+    font-size:15px;
+    padding:10px 18px;
+    border-radius:var(--r-md);
+    z-index:200;
+    transition:top .2s ease;
+  }
+  .skip:focus{top:12px}
+
+  /* ============ entrance animation (single orchestrated rise, then stillness) ============ */
+  @keyframes rise{
+    from{opacity:0;transform:translateY(18px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+  .rise{opacity:0;animation:rise .8s cubic-bezier(.22,.61,.21,1) forwards}
+  .d0{animation-delay:0s}
+  .d1{animation-delay:.08s}
+  .d2{animation-delay:.16s}
+  .d3{animation-delay:.24s}
+  .d4{animation-delay:.32s}
+  .d5{animation-delay:.44s}
+  .d6{animation-delay:.58s}
+  .d7{animation-delay:.70s}
+  .d8{animation-delay:.82s}
+
+  /* ============ nav ============ */
+  .nav{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:var(--harbor);
+    border-bottom:1px solid rgba(255,255,255,0.14);
+  }
+  .nav-inner{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:24px;
+    min-height:64px;
+  }
+  .brand{display:flex;align-items:center;gap:12px;flex-shrink:0}
+  .nyc-mark{
+    background:var(--gold);
+    color:var(--ink);
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:15px;
+    letter-spacing:0.02em;
+    padding:7px 10px;
+    border-radius:var(--r-sm);
+  }
+  .brand-text{
+    color:#fff;
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:15px;
+    letter-spacing:0.01em;
+    white-space:nowrap;
+  }
+  .nav-links{display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+  .nav-links a{
+    color:rgba(255,255,255,0.82);
+    font-size:15px;
+    font-weight:400;
+    transition:color .15s ease;
+  }
+  .nav-links a:hover{color:#fff}
+  .lang-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    border:1px solid rgba(255,255,255,0.38);
+    border-radius:9999px;
+    padding:6px 13px;
+    color:#fff;
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:13px;
+    letter-spacing:0.04em;
+    background:transparent;
+    cursor:pointer;
+    transition:border-color .15s ease;
+  }
+  .lang-pill:hover{border-color:rgba(255,255,255,0.7)}
+
+  /* ============ hero ============ */
+  .hero{
+    position:relative;
+    background:
+      radial-gradient(900px 480px at 78% 6%, rgba(26,95,208,0.28), transparent 62%),
+      radial-gradient(720px 520px at 8% 112%, rgba(245,161,30,0.07), transparent 60%),
+      var(--harbor);
+    color:#fff;
+    overflow:hidden;
+  }
+  .hero::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity:0.05;
+    mix-blend-mode:soft-light;
+    pointer-events:none;
+  }
+  .hero-inner{
+    position:relative;
+    z-index:1;
+    display:grid;
+    grid-template-columns:1.05fr 0.95fr;
+    gap:64px;
+    align-items:center;
+    padding-top:72px;
+    padding-bottom:88px;
+  }
+  .hero-copy .display{color:#fff;margin:22px 0 24px}
+  .hero-sub{
+    color:rgba(255,255,255,0.78);
+    max-width:32rem;
+    margin-bottom:36px;
+  }
+  .hero-actions{display:flex;gap:16px;flex-wrap:wrap}
+
+  .money-card{
+    background:var(--cloud);
+    color:var(--ink);
+    border-radius:var(--r-xl);
+    padding:56px 52px;
+    margin:16px 0;
+    box-shadow:
+      0 48px 90px -28px rgba(1,10,26,0.6),
+      0 14px 30px -12px rgba(1,10,26,0.4);
+  }
+  .money-card .kicker{color:var(--slate);display:block;margin-bottom:28px}
+  .money-card .figure-hero{display:block;letter-spacing:-0.02em;margin-bottom:20px}
+  .money-card .figure-label{font-size:18px;color:var(--ink);margin-bottom:18px}
+  .money-card .source{font-size:14px;color:var(--slate)}
+
+  /* ============ buttons ============ */
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-family:var(--font-body);
+    font-weight:700;
+    font-size:16px;
+    border-radius:var(--r-md);
+    padding:14px 24px;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:background-color .18s ease,color .18s ease,border-color .18s ease;
+  }
+  .btn-primary{background:var(--liberty);color:#fff}
+  .btn-primary:hover{background:var(--liberty-deep)}
+  .btn-secondary{background:var(--cloud);color:var(--ink);border-color:var(--ink)}
+  .btn-secondary:hover{background:var(--paper)}
+  .btn-block{width:100%}
+
+  /* ============ sections ============ */
+  .section{padding:96px 0}
+  .section-flush{padding-top:0}
+  .section-head{max-width:44rem;margin-bottom:48px}
+  .section-head .h2{margin-bottom:16px}
+  .section-head p{color:var(--slate)}
+  .section-head.center{margin-left:auto;margin-right:auto;text-align:center}
+
+  /* ============ subscription cards ============ */
+  .subs-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:24px;
+  }
+  .sub-card{
+    background:var(--cloud);
+    border:1px solid var(--fog);
+    border-radius:var(--r-lg);
+    padding:24px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .sub-card.is-done{opacity:0.62}
+  .sub-card .h3{margin-bottom:2px}
+  .sub-price{
+    font-family:var(--font-mono);
+    font-weight:700;
+    font-size:20px;
+    font-variant-numeric:tabular-nums;
+    color:var(--ink);
+  }
+  .sub-price .per{font-weight:500;font-size:14px;color:var(--slate)}
+  .sub-note{font-size:15px;line-height:1.5;color:var(--slate);flex-grow:1}
+  .sub-card .btn{margin-top:6px}
+
+  .badge-saved{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    background:var(--green-tint);
+    color:var(--green-deep);
+    border-radius:9999px;
+    padding:9px 14px;
+    font-size:14px;
+    font-weight:700;
+    margin-top:6px;
+  }
+  .badge-saved svg{flex-shrink:0}
+
+  /* ============ callout (running total) ============ */
+  .callout{
+    margin-top:40px;
+    background:var(--gold-tint);
+    color:var(--ink);
+    border-radius:var(--r-lg);
+    padding:40px 48px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px 32px;
+    flex-wrap:wrap;
+  }
+  .callout .label-caps{display:block;margin-bottom:12px}
+  .callout .callout-sub{font-size:15px;color:var(--ink);opacity:0.72;max-width:26rem}
+  .callout-total{
+    font-family:var(--font-mono);
+    font-weight:700;
+    font-size:42px;
+    line-height:1.0;
+    font-variant-numeric:tabular-nums;
+    letter-spacing:-0.02em;
+    white-space:nowrap;
+  }
+  .callout-total .tail{
+    font-family:var(--font-body);
+    font-weight:400;
+    font-size:18px;
+    letter-spacing:0;
+    color:var(--ink);
+    opacity:0.72;
+  }
+
+  /* ============ receipt ============ */
+  .receipt-card{
+    max-width:620px;
+    margin:0 auto;
+    background:var(--cloud);
+    border:1px solid var(--fog);
+    border-radius:var(--r-lg);
+    padding:44px 48px 40px;
+  }
+  .receipt-head{
+    text-align:center;
+    color:var(--slate);
+    padding-bottom:24px;
+    border-bottom:1px solid var(--fog);
+    margin-bottom:8px;
+  }
+  .receipt-head .vendor{
+    font-family:var(--font-mono);
+    font-weight:700;
+    font-size:15px;
+    letter-spacing:0.06em;
+    color:var(--ink);
+    display:block;
+    margin-bottom:6px;
+  }
+  .receipt-row{
+    display:grid;
+    grid-template-columns:1fr auto;
+    align-items:baseline;
+    gap:16px;
+    padding:11px 0;
+    font-family:var(--font-mono);
+    font-weight:500;
+    font-size:15px;
+    line-height:1.4;
+    font-variant-numeric:tabular-nums;
+  }
+  .receipt-row .amt{text-align:right;font-variant-numeric:tabular-nums}
+  .receipt-row.is-fee .item{color:var(--slate)}
+  .receipt-row.is-fee .item s{text-decoration-thickness:1px}
+  .fee-flag{
+    display:inline-block;
+    vertical-align:2px;
+    background:var(--gold);
+    color:var(--ink);
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:10px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    border-radius:9999px;
+    padding:3px 8px;
+    margin-left:10px;
+    white-space:nowrap;
+  }
+  .receipt-divider{border-top:1px dashed var(--fog);margin:10px 0}
+  .receipt-row.is-total{padding:14px 0 4px}
+  .receipt-row.is-total .item{
+    font-family:var(--font-body);
+    font-weight:700;
+    font-size:17px;
+    color:var(--ink);
+  }
+  .receipt-row.is-total .amt{font-weight:700;font-size:19px;color:var(--ink)}
+  .receipt-note{
+    margin-top:24px;
+    padding-top:24px;
+    border-top:1px solid var(--fog);
+    font-size:16px;
+    line-height:1.55;
+    color:var(--ink);
+  }
+
+  /* ============ footer ============ */
+  .footer{background:var(--harbor);color:#fff;padding:64px 0 32px}
+  .footer-grid{
+    display:grid;
+    grid-template-columns:1.5fr 1fr 1fr 1fr;
+    gap:40px;
+    padding-bottom:48px;
+  }
+  .footer-brand .brand{margin-bottom:18px}
+  .footer-brand p{
+    color:rgba(255,255,255,0.62);
+    font-size:15px;
+    line-height:1.55;
+    max-width:20rem;
+  }
+  .footer-col .label-caps{color:rgba(255,255,255,0.55);display:block;margin-bottom:18px}
+  .footer-col ul{list-style:none}
+  .footer-col li{margin-bottom:10px}
+  .footer-col a{
+    color:rgba(255,255,255,0.82);
+    font-size:15px;
+    transition:color .15s ease;
+  }
+  .footer-col a:hover{color:#fff}
+  .footer-bottom{
+    border-top:1px solid rgba(255,255,255,0.14);
+    padding-top:24px;
+    color:rgba(255,255,255,0.6);
+    font-size:14px;
+  }
+
+  /* ============ responsive ============ */
+  @media (max-width:1080px){
+    .hero-inner{grid-template-columns:1fr;gap:56px;padding-top:64px;padding-bottom:72px}
+    .hero-sub{max-width:36rem}
+    .money-card{max-width:560px;margin:0}
+    .subs-grid{grid-template-columns:repeat(2,1fr)}
+    .footer-grid{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:760px){
+    .wrap{padding:0 20px}
+    .nav-links a{display:none}
+    .brand-text{font-size:14px}
+    .display{font-size:40px;letter-spacing:-0.025em}
+    .h2{font-size:27px}
+    .body-lg{font-size:18px}
+    .section{padding:64px 0}
+    .section-head{margin-bottom:36px}
+    .subs-grid{grid-template-columns:1fr}
+    .figure-hero{font-size:44px}
+    .money-card{padding:44px 32px}
+    .callout{padding:32px 28px}
+    .callout-total{font-size:32px}
+    .receipt-card{padding:32px 24px 28px}
+    .receipt-row.is-total .item{font-size:15px}
+    .receipt-row.is-total .amt{font-size:17px}
+    .fee-flag{margin-left:6px;padding:2px 7px}
+    .footer-grid{grid-template-columns:1fr;gap:32px}
+  }
+
+  /* ============ reduced motion ============ */
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation:none!important;transition:none!important}
+    .rise{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- ================= NAV ================= -->
+<nav class="nav" aria-label="Primary">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#" aria-label="NYC Department of Consumer and Worker Protection — home">
+      <span class="nyc-mark">NYC</span>
+      <span class="brand-text">Consumer &amp; Worker Protection</span>
+    </a>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#subscriptions">My subscriptions</a>
+      <a href="#report">Report a fee</a>
+      <button class="lang-pill" type="button" aria-label="Change language">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M2 12h20M12 2c2.5 2.6 4 6.2 4 10s-1.5 7.4-4 10c-2.5-2.6-4-6.2-4-10s1.5-7.4 4-10z"/>
+        </svg>
+        EN
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap hero-inner">
+    <div class="hero-copy">
+      <span class="label-caps eyebrow rise d1">Click-to-cancel · Now live</span>
+      <h1 class="display rise d2">Cancel the traps.<br>Keep your money.</h1>
+      <p class="body-lg hero-sub rise d3">
+        New York City's click-to-cancel and all-in pricing rules are now in force.
+        We find the subscriptions quietly billing you, end them in one tap, and make
+        every seller show the real price — before you pay.
+      </p>
+      <div class="hero-actions rise d4">
+        <a class="btn btn-primary" href="#subscriptions">Scan my subscriptions</a>
+        <a class="btn btn-secondary" href="#how">See how it works</a>
+      </div>
+    </div>
+
+    <div class="money-card rise d5" role="figure" aria-label="$162.5 million saved for New Yorkers per year, projected by DCWP">
+      <span class="label-caps kicker">Saved for New Yorkers, per year</span>
+      <span class="figure-hero">$162.5M</span>
+      <p class="figure-label">back in New Yorkers' pockets — and counting.</p>
+      <p class="source">· projected by DCWP</p>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ================= SUBSCRIPTIONS ================= -->
+  <section class="section" id="subscriptions" aria-labelledby="subs-h">
+    <div class="wrap">
+      <div class="section-head rise d6">
+        <h2 class="h2" id="subs-h">The subscriptions quietly billing you</h2>
+        <p>We watch for renewals, price hikes, and free trials that turned into bills — then cancel what you don't want, in one tap.</p>
+      </div>
+
+      <div class="subs-grid rise d6">
+        <article class="sub-card">
+          <div>
+            <h3 class="h3">StreamMax+</h3>
+            <p class="sub-price mono">$17.99<span class="per">/mo</span></p>
+          </div>
+          <p class="sub-note">Renews on the 3rd · raised your price twice this year.</p>
+          <a class="btn btn-primary btn-block" href="#">Cancel</a>
+        </article>
+
+        <article class="sub-card is-done">
+          <div>
+            <h3 class="h3">IronWorks Gym</h3>
+            <p class="sub-price mono">$49.00<span class="per">/mo</span></p>
+          </div>
+          <p class="sub-note">Canceled in one tap · final refund of $49.00 issued.</p>
+          <span class="badge-saved">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20 6L9 17l-5-5"/>
+            </svg>
+            CANCELED · You saved $215/yr
+          </span>
+        </article>
+
+        <article class="sub-card">
+          <div>
+            <h3 class="h3">NewsWall Daily</h3>
+            <p class="sub-price mono">$9.99<span class="per">/mo</span></p>
+          </div>
+          <p class="sub-note">Renews monthly · your free trial converted in March.</p>
+          <a class="btn btn-primary btn-block" href="#">Cancel</a>
+        </article>
+      </div>
+
+      <div class="callout rise d7">
+        <div>
+          <span class="label-caps">Your running total</span>
+          <p class="callout-sub">Every cancellation moves money back where it belongs — your pocket.</p>
+        </div>
+        <p class="callout-total">$462<span class="tail"> / yr saved</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= RECEIPT ================= -->
+  <section class="section section-flush" id="how" aria-labelledby="receipt-h">
+    <div class="wrap">
+      <div class="section-head center rise d7">
+        <h2 class="h2" id="receipt-h">See the real, all-in price</h2>
+        <p>No more surprise charges at checkout. The sticker price is the whole price.</p>
+      </div>
+
+      <div class="receipt-card rise d8" aria-label="Itemized receipt showing junk fees flagged">
+        <div class="receipt-head">
+          <span class="vendor">TIXHALL CO.</span>
+          <span class="label-caps">Itemized receipt</span>
+        </div>
+
+        <div class="receipt-row">
+          <span class="item">Concert ticket</span>
+          <span class="amt">$50.00</span>
+        </div>
+        <div class="receipt-row is-fee">
+          <span class="item"><s>"Service fee"</s><span class="fee-flag">Junk fee</span></span>
+          <span class="amt">+$18.50</span>
+        </div>
+        <div class="receipt-row is-fee">
+          <span class="item"><s>"Facility fee"</s><span class="fee-flag">Junk fee</span></span>
+          <span class="amt">+$6.00</span>
+        </div>
+
+        <div class="receipt-divider" role="separator" aria-hidden="true"></div>
+
+        <div class="receipt-row is-total">
+          <span class="item">All-in price you actually pay</span>
+          <span class="amt">$74.50</span>
+        </div>
+
+        <p class="receipt-note">
+          Junk fees added 49% to the sticker price. Under NYC's new rule,
+          the all-in price must be shown up front.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer" id="report">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="#" aria-label="NYC Department of Consumer and Worker Protection — home">
+          <span class="nyc-mark">NYC</span>
+          <span class="brand-text">Consumer &amp; Worker Protection</span>
+        </a>
+        <p>The price you see is the price you pay — and you can always walk away.</p>
+      </div>
+
+      <nav class="footer-col" aria-label="Rights">
+        <span class="label-caps">Rights</span>
+        <ul>
+          <li><a href="#">Your consumer rights</a></li>
+          <li><a href="#">Click-to-cancel rule</a></li>
+          <li><a href="#">All-in pricing rule</a></li>
+          <li><a href="#">File a complaint</a></li>
+        </ul>
+      </nav>
+
+      <nav class="footer-col" aria-label="Resources">
+        <span class="label-caps">Resources</span>
+        <ul>
+          <li><a href="#">How it works</a></li>
+          <li><a href="#">Subscription scan</a></li>
+          <li><a href="#">Junk-fee lookup</a></li>
+          <li><a href="#">Press &amp; reports</a></li>
+        </ul>
+      </nav>
+
+      <nav class="footer-col" aria-label="Contact">
+        <span class="label-caps">Contact</span>
+        <ul>
+          <li><a href="#">Call 311</a></li>
+          <li><a href="#">Visit a DCWP center</a></li>
+          <li><a href="#">Accessibility</a></li>
+          <li><a href="#">NYC.gov</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="footer-bottom">
+      Mamdani Administration · NYC Department of Consumer &amp; Worker Protection
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>lanceyvang · hosted pages</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&family=Space+Grotesk:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0C1826; --slate:#5A6472; --paper:#F8F6F1; --cloud:#FFFFFF;
+    --fog:#E4E1D8; --harbor:#04244F; --liberty:#1A5FD0; --liberty-deep:#123F91; --gold:#F5A11E;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:"Public Sans",system-ui,sans-serif; font-size:18px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    display:flex; flex-direction:column; min-height:100vh;
+  }
+  .wrap{max-width:760px; margin:0 auto; padding:96px 24px 64px; width:100%; flex:1}
+  .eyebrow{
+    font-family:"Space Grotesk",sans-serif; font-weight:600; font-size:13px;
+    letter-spacing:0.08em; text-transform:uppercase; color:var(--slate);
+    display:inline-block;
+  }
+  .eyebrow::after{content:""; display:block; width:44px; height:3px; background:var(--gold); margin-top:10px; border-radius:2px}
+  h1{
+    font-family:"Space Grotesk",sans-serif; font-weight:700; font-size:44px;
+    line-height:1.05; letter-spacing:-0.025em; margin:24px 0 12px;
+  }
+  .lede{font-size:20px; color:var(--slate); max-width:56ch}
+  .list{margin-top:56px; display:flex; flex-direction:column; gap:16px}
+  .card{
+    display:block; background:var(--cloud); border:1px solid var(--fog);
+    border-radius:16px; padding:24px 28px; text-decoration:none; color:inherit;
+    transition:transform .15s ease-out, box-shadow .15s ease-out, border-color .15s ease-out;
+  }
+  .card:hover,.card:focus-visible{
+    transform:translateY(-2px); border-color:var(--liberty);
+    box-shadow:0 12px 32px -12px rgba(4,36,79,.24); outline:none;
+  }
+  .card:focus-visible{box-shadow:0 0 0 3px var(--gold)}
+  .card h2{font-family:"Space Grotesk",sans-serif; font-weight:600; font-size:22px; letter-spacing:-0.01em; margin-bottom:4px}
+  .card p{color:var(--slate); font-size:16px}
+  .card .go{
+    font-family:"Space Mono",monospace; font-size:14px; color:var(--liberty);
+    margin-top:14px; display:inline-block; font-weight:700;
+  }
+  footer{
+    background:var(--harbor); color:#C6D2E6; font-size:14px;
+    padding:28px 24px; text-align:center;
+  }
+  footer b{color:#fff; font-weight:600}
+  @media (max-width:520px){ .wrap{padding:56px 20px 48px} h1{font-size:34px} }
+  @media (prefers-reduced-motion:reduce){ .card{transition:none} .card:hover{transform:none} }
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <span class="eyebrow">Hosted · GitHub Pages</span>
+    <h1>Lance's shared pages</h1>
+    <p class="lede">A public shelf for things worth sharing — mockups, prototypes, and one-off pages. Pick one below.</p>
+
+    <div class="list">
+      <a class="card" href="./mamdani-cancel/">
+        <h2>Cancel the traps · Empire Clear</h2>
+        <p>A premium v2.0 concept for the NYC "click-to-cancel" &amp; junk-fee app — subscription-killing and all-in pricing, done right.</p>
+        <span class="go">Open →</span>
+      </a>
+    </div>
+  </main>
+  <footer>Built with care · <b>lanceyvang</b></footer>
+</body>
+</html>
