@@ -843,7 +843,7 @@
     var open = nav.classList.toggle("is-open");
     toggle.setAttribute("aria-expanded", String(open));
   });
-  nav.addEventListener("keydown", function(e){
+  document.addEventListener("keydown", function(e){
     if (e.key === "Escape" && nav.classList.contains("is-open")) { closeNav(); toggle.focus(); }
   });
   document.querySelectorAll("#nav-menu a").forEach(function(a){ a.addEventListener("click", closeNav); });
