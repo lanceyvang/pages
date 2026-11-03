@@ -1,1 +1,1 @@
-(function(A){A["e1"]="audio/e1.mp3";A["l1"]="audio/l1.mp3";})(window.TDF_AUDIO=window.TDF_AUDIO||{});
+(function(A){A["e1"]="audio/e1.mp3";A["l1"]="audio/l1.mp3";A["r1-1"]="audio/r1-1.mp3";A["r1-2"]="audio/r1-2.mp3";A["r1-3"]="audio/r1-3.mp3";A["r1-4"]="audio/r1-4.mp3";})(window.TDF_AUDIO=window.TDF_AUDIO||{});
