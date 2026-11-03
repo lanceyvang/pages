@@ -26,3 +26,7 @@ Live URL for an item: `https://lanceyvang.github.io/pages/<item-slug>/`
 
 - **`mamdani-cancel/`** — Empire Clear, a premium concept mockup for the NYC
   click-to-cancel / junk-fee app. Design tokens live in the project's `DESIGN.md`.
+- **`five-rides/`** — Five Rides to Tableau, a narrated study course for the
+  Tableau Desktop Foundations exam. An installable PWA: manifest, service worker
+  that caches the page and all narration for offline use, and a two-pane layout
+  on unfolded foldables. Built from the course project's `build/pwa.py`.
