@@ -1,9 +1,9 @@
 /* Five Rides to Tableau: offline worker.
    Core files are cached on install. Narration (12 mp3 files) is cached in its own
    cache after install, one file at a time, so a dropped signal only loses one file. */
-const VERSION = "cb082eeccf";
+const VERSION = "9e5b636020";
 const CORE = "five-rides-core-" + VERSION;
-const AUDIO = "five-rides-audio-74a124f2b5";
+const AUDIO = "five-rides-audio-9a879bf194";
 const CORE_FILES = ["./", "index.html", "manifest.json", "pwa.js", "audio/ride-1.js", "audio/ride-2.js", "audio/ride-3.js", "audio/ride-4.js", "audio/ride-5.js", "audio/ride-6.js", "icons/apple-touch-icon.png", "icons/favicon-48.png", "icons/icon-192-maskable.png", "icons/icon-192.png", "icons/icon-512-maskable.png", "icons/icon-512.png", "fonts/AtkinsonHyperlegible-37a72071.woff2", "fonts/AtkinsonHyperlegible-4577a257.woff2", "fonts/AtkinsonHyperlegible-50207189.woff2", "fonts/AtkinsonHyperlegible-54a74383.woff2", "fonts/AtkinsonHyperlegible-8d7aedff.woff2", "fonts/AtkinsonHyperlegible-dc4fa2c8.woff2", "fonts/BricolageGrotesque-4efd1a5a.woff2", "fonts/BricolageGrotesque-6441e9c6.woff2", "fonts/JetBrainsMono-2b68e366.woff2", "fonts/JetBrainsMono-be8484af.woff2"];
 const AUDIO_FILES = ["audio/e1.mp3", "audio/e2.mp3", "audio/e3.mp3", "audio/e4.mp3", "audio/e5.mp3", "audio/e6.mp3", "audio/l1.mp3", "audio/l2.mp3", "audio/l3.mp3", "audio/l4.mp3", "audio/l5.mp3", "audio/l6.mp3", "audio/r1-1.mp3", "audio/r1-2.mp3", "audio/r1-3.mp3", "audio/r1-4.mp3"];
 const abs = (u) => new URL(u, self.registration.scope).href;
