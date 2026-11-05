@@ -809,6 +809,28 @@ body:not(.duo) .skip-lesson { display: none; }
   body.duo .lp { left: env(viewport-segment-left 1 0, 0px); }
 }
 main.wrap:focus { outline: none; }
+
+/* Resume chip placement (the chip itself is styled in media.css and made in media.js).
+   It stays clear of the side rail in two panes, lifts over the lesson bar when both show,
+   and keeps inside the safe-area insets on both sides. */
+.resume { max-width: calc(100% - max(16px, env(safe-area-inset-left, 0px)) - max(16px, env(safe-area-inset-right, 0px))); }
+/* The lesson bar is about 74px plus the bottom inset; 100px is the same allowance the rail uses */
+body.lp-on .resume { bottom: calc(100px + env(safe-area-inset-bottom, 0px)); }
+/* Two panes: start the chip at the main column's left edge. Mirrors .shell: body padding,
+   centred shell of min(content, 1120px), rail column min(36%, 340px), 28px gap. */
+body.duo .resume {
+  --rz-pl: max(16px, env(safe-area-inset-left, 0px));
+  --rz-pr: max(16px, env(safe-area-inset-right, 0px));
+  --rz-s: min(100% - var(--rz-pl) - var(--rz-pr), 1120px);
+  --rz-left: calc(var(--rz-pl) + (100% - var(--rz-pl) - var(--rz-pr) - var(--rz-s)) / 2 + min(var(--rz-s) * 0.36, 340px) + 28px);
+  left: var(--rz-left); max-width: calc(100% - var(--rz-left) - var(--rz-pr));
+}
+/* Book posture: the main column starts 16px past the hinge, in the second segment */
+@media (horizontal-viewport-segments: 2) {
+  body.duo .resume { --rz-left: calc(env(viewport-segment-left 1 0, 50vw) + var(--rz-pl)); }
+}
+/* Let the last lines of the page scroll clear of the chip (the lesson bar keeps its own 140px) */
+body:has(> .resume):not(.lp-on) footer { padding-bottom: 96px; }
 /* TDF_MG recap scenes: the svg paints its own stage; this only sizes and quiets it */
 .mg-svg{display:block;width:100%;height:auto;aspect-ratio:1/1;border-radius:18px;overflow:hidden;background:var(--surface,#fff);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 .mg-svg text{pointer-events:none}
