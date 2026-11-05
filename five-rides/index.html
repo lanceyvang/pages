@@ -871,6 +871,180 @@ body.duo .resume {
 }
 /* Let the last lines of the page scroll clear of the chip (the lesson bar keeps its own 140px) */
 body:has(> .resume):not(.lp-on) footer { padding-bottom: 96px; }
+/* ---------- Deck mode: one fixed screen, content flows onto it one step at a time (deck.js) ---------- */
+body.dk { overflow: hidden; height: 100vh; height: 100dvh; padding: 0; margin: 0; }
+body.dk::before { display: none; }
+body.dk header.top { display: none; }
+body.dk .dk-off { display: none !important; }
+body.dk .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+
+/* the frame: top bar, stage, bottom bar; it ends above the lesson audio bar when that is up */
+.dk-root {
+  position: fixed; left: 0; right: 0; top: 0; bottom: var(--dk-lph, 0px); z-index: 20;
+  display: grid; grid-template-rows: auto minmax(0, 1fr) auto; background: var(--bg); color: var(--fg);
+}
+.dk-top {
+  position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 8px;
+  padding: calc(6px + env(safe-area-inset-top, 0px)) max(10px, env(safe-area-inset-right, 0px)) 8px max(10px, env(safe-area-inset-left, 0px));
+  background: color-mix(in srgb, var(--bg) 92%, var(--surface)); border-bottom: 1px solid var(--line);
+}
+.dk-menu-btn { width: 44px; height: 40px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); display: grid; place-content: center; gap: 4px; padding: 0; }
+.dk-menu-btn span { display: block; width: 18px; height: 2px; border-radius: 1px; background: var(--fg); }
+.dk-route { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 2px; min-width: 0; position: relative; }
+.dk-route::before { content: ""; position: absolute; left: calc(100% / 12); right: calc(100% / 12); top: 13px; height: 3px; border-radius: 2px; background: var(--sunk); }
+.dk-st { position: relative; display: grid; justify-items: center; gap: 2px; padding: 2px 0 0; border: 0; background: none; color: var(--muted); min-width: 0; }
+.dk-st i { width: 24px; height: 24px; border-radius: 50%; border: 2.5px solid var(--line); background: var(--surface); display: grid; place-items: center; font-style: normal; font-family: var(--display); font-weight: 800; font-size: 12px; line-height: 1; color: var(--muted); transition: background .3s, border-color .3s, transform .3s; }
+.dk-st small { font-size: 10px; font-weight: 700; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.dk-st.done i { background: var(--green); border-color: var(--green); color: var(--surface); }
+.dk-st.here i { border-color: var(--blue); color: var(--blue); transform: scale(1.1); box-shadow: 0 0 0 3px var(--blue-soft); }
+.dk-st.here.done i { color: var(--surface); }
+.dk-st.here small { color: var(--blue); }
+.dk-st:focus-visible { outline: 2px solid var(--blue); outline-offset: 0; border-radius: 8px; }
+.dk-step { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 40px; text-align: right; }
+.dk-bar { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: transparent; }
+.dk-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--blue), var(--green)); transform-origin: 0 50%; transform: scaleX(0); transition: transform .45s cubic-bezier(.3,.7,.2,1); }
+@media (max-width: 379px) { .dk-st small { display: none; } .dk-route::before { top: 13px; } }
+
+.dk-stage { position: relative; overflow: hidden; min-height: 0; background: var(--bg); touch-action: pan-y pinch-zoom; }
+.dk-pane { position: absolute; inset: 0; overflow: hidden; overflow: clip; background: var(--bg); }
+.dk-view { z-index: 2; }
+.dk-ghost { z-index: 1; pointer-events: none; }
+.dk-pane > main.wrap { max-width: 680px; margin: 0 auto; padding: 10px max(16px, env(safe-area-inset-right, 0px)) 12px max(16px, env(safe-area-inset-left, 0px)); min-width: 0; }
+.dk-view > main.wrap { height: 100%; }
+body.dk .hero, body.dk .lesson { padding: 0; border: 0; display: block; }
+body.dk .lesson + .lesson { border-top: 0; }
+.dk-screen { display: grid; gap: 14px; align-content: start; transform-origin: 50% 0; }
+.dk-screen.dk-scaled { transform-origin: 50% 0; }
+.dk-cont-h, .dk-qh { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.dk-cont-h:focus, .dk-qh:focus, .dk-screen h1:focus, .dk-screen h2:focus, .dk-screen h3:focus, .dk-screen h4:focus, .dk-screen .q-text:focus, .dk-screen .ep-label b:focus, .dk-screen .mq-dom:focus, .dk-screen b:focus { outline: none; }
+
+/* lesson blocks keep their old spacing between them; headings lose the extra top margin a scrolling page wanted */
+body.dk .lesson h3 { margin-top: 0; }
+body.dk .lesson .lede { font-size: 17px; }
+body.dk .h3-listen { width: 36px; height: 36px; vertical-align: -2px; }
+body.dk .h3-listen svg { width: 16px; height: 16px; }
+body.dk .listen-row { gap: 10px; }
+body.dk .quiz, body.dk .mock { margin-top: 0; }
+body.dk .quiz { gap: 0; }
+body.dk .mock { gap: 0; }
+body.dk .mock-bar { position: static; margin: 0 0 12px; }
+body.dk .mq { padding-top: 0; border-top: 0; }
+body.dk .mock-foot { border-top: 0; padding-top: 0; }
+body.dk .recap { margin: 0; }
+body.dk .done-row { padding-block: 4px 0; }
+.dk-start { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.dk-start .btn { min-height: 44px; padding: 10px 18px; font-size: 15px; }
+.dk-start .btn[hidden] { display: none; }
+.dk-end { display: flex; justify-content: center; padding-top: 4px; }
+.dk-end .btn { min-height: 46px; padding: 10px 20px; font-size: 15px; }
+/* collapsed transcripts stay out of the screens (phase 1); captions remain */
+body.dk details.tx, body.dk details.eptx { display: none; }
+/* the players are sized by the stage height, never by the page: label, captions and controls must fit under them */
+body.dk .stage.mgep, body.dk .mg-stage { width: min(100%, 560px, calc(var(--dk-h, 700px) - 210px)); }
+body.dk .stage:not(.mgep) { max-height: calc(var(--dk-h, 700px) - 150px); }
+body.dk .mg-cap { min-height: 2.9em; font-size: 14px; }
+body.dk .ep, body.dk .recap { gap: 8px; }
+/* fixed bits that used to sit at the page's bottom now sit above the deck's bars */
+body.dk .lp { z-index: 25; }
+body.dk .toast { bottom: calc(var(--dk-navh, 56px) + var(--dk-lph, 0px) + 12px); z-index: 40; }
+body.dk .pwa-bar { bottom: calc(var(--dk-navh, 56px) + var(--dk-lph, 0px) + 12px) !important; }
+body.dk .resume { bottom: calc(var(--dk-navh, 56px) + var(--dk-lph, 0px) + 12px); left: max(16px, env(safe-area-inset-left, 0px)); max-width: calc(100% - 32px); }
+body.dk footer { padding: 6px 0 0; }
+body.dk .footer, body.dk .skip-lesson { display: none; }
+body.dk.lp-on footer { padding-bottom: 0; }
+
+.dk-nav {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 8px;
+  padding: 6px max(10px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
+  background: color-mix(in srgb, var(--bg) 92%, var(--surface)); border-top: 1px solid var(--line);
+}
+.dk-nav button { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; min-width: 88px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-weight: 700; font-size: 14px; color: var(--fg); justify-content: center; transition: transform .15s ease, opacity .2s; }
+.dk-nav button svg { width: 16px; height: 16px; }
+.dk-nav .dk-next { background: var(--blue); border-color: var(--blue); color: var(--surface); }
+.dk-nav button:disabled { opacity: .35; cursor: default; }
+.dk-nav button:not(:disabled):active { transform: scale(.96); }
+.dk-label { font-size: 13px; color: var(--muted); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; font-weight: 700; }
+
+/* transitions: a set change. The old screen (a still ghost) recedes and slides off; the new one slides in over it. */
+@keyframes dk-in-f { from { transform: translateX(100%); } to { transform: none; } }
+@keyframes dk-in-b { from { transform: translateX(-100%); } to { transform: none; } }
+@keyframes dk-out-f { 0% { transform: none; opacity: 1; } 100% { transform: translateX(-34%) scale(.94); opacity: 0; } }
+@keyframes dk-out-b { 0% { transform: none; opacity: 1; } 100% { transform: translateX(34%) scale(.94); opacity: 0; } }
+@keyframes dk-x { from { opacity: 1; } to { opacity: 0; } }
+.dk-view.dk-in-f { animation: dk-in-f .42s cubic-bezier(.22,.8,.2,1) both; box-shadow: -12px 0 40px rgba(0,0,0,.22); }
+.dk-view.dk-in-b { animation: dk-in-b .42s cubic-bezier(.22,.8,.2,1) both; box-shadow: 12px 0 40px rgba(0,0,0,.22); }
+.dk-ghost.f { animation: dk-out-f .4s cubic-bezier(.45,.05,.55,.95) both; }
+.dk-ghost.b { animation: dk-out-b .4s cubic-bezier(.45,.05,.55,.95) both; }
+.dk-ghost.x { animation: dk-x .22s ease both; }
+@media (prefers-reduced-motion: reduce) {
+  .dk-view.dk-in-f, .dk-view.dk-in-b { animation: none !important; box-shadow: none; }
+  body.dk .dk-ghost.x { animation: dk-x .22s ease both !important; }
+  body.dk .dk-ghost.f, body.dk .dk-ghost.b { animation: dk-x .22s ease both !important; }
+}
+
+/* chapter picker: the one place a list may be long; a grid that fits, a ride at a time */
+.dk-menu { position: fixed; inset: 0; z-index: 60; background: color-mix(in srgb, var(--bg) 96%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: grid; align-content: start; padding: calc(8px + env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); overflow: auto; }
+.dk-menu[hidden] { display: none; }
+.dk-m-in { max-width: 760px; margin: 0 auto; width: 100%; display: grid; gap: 12px; }
+.dk-m-head { display: flex; align-items: center; gap: 10px; }
+.dk-m-head b { font-family: var(--display); font-size: 20px; }
+.dk-m-stat { font-size: 13px; color: var(--muted); flex: 1 1 auto; font-variant-numeric: tabular-nums; }
+.dk-m-x { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; padding: 0; color: var(--fg); }
+.dk-m-x svg { width: 18px; height: 18px; }
+.dk-m-rides { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.dk-m-ride { display: grid; justify-items: center; gap: 3px; padding: 8px 2px 6px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--muted); min-width: 0; }
+.dk-m-ride i { width: 26px; height: 26px; border-radius: 50%; background: var(--sunk); display: grid; place-items: center; font-style: normal; font-family: var(--display); font-weight: 800; font-size: 13px; color: var(--fg); }
+.dk-m-ride span { font-size: 10.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.dk-m-ride.on { border-color: var(--blue); background: var(--blue-soft); color: var(--blue); }
+.dk-m-ride.on i { background: var(--blue); color: var(--surface); }
+.dk-m-secs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.dk-m-sec { text-align: left; min-height: 40px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--fg); font-size: 13px; font-weight: 700; line-height: 1.25; overflow: hidden; }
+.dk-m-sec.now { border-color: var(--blue); background: var(--blue-soft); color: var(--blue); }
+@media (max-width: 379px) { .dk-m-rides { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 600px) { .dk-m-secs { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 900px) { .dk-m-secs { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+body.dk-menu-open .dk-root { filter: blur(1px); }
+
+/* wide screens (an unfolded Fold, a desktop): the same one screen, centred, with larger type */
+@media (min-width: 720px) {
+  .dk-pane > main.wrap { max-width: 760px; font-size: 18px; padding-top: 16px; }
+  body.dk .lesson h3 { font-size: 26px; }
+  body.dk .lesson .lede { font-size: 19px; }
+  .dk-screen { gap: 16px; }
+  .dk-top { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .dk-route { max-width: 460px; margin: 0 auto; width: 100%; }
+  .dk-nav { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .dk-nav button { min-width: 120px; }
+  body.dk .mg-cap { font-size: 16px; }
+}
+@media (min-width: 1000px) {
+  .dk-pane > main.wrap { max-width: 860px; font-size: 19px; }
+}
+/* landscape with room: the player sits beside its label, captions and controls; a section's visual sits beside its text */
+@media (min-width: 900px) and (orientation: landscape) and (min-height: 520px) {
+  .dk-pane > main.wrap { max-width: 1040px; }
+  body.dk .ep, body.dk .recap { display: grid; grid-template-columns: minmax(0, 11fr) minmax(0, 9fr); grid-template-rows: auto 1fr auto; column-gap: 20px; align-items: start; }
+  body.dk .ep > .stage, body.dk .recap > .mg-stage { grid-column: 1; grid-row: 1 / span 3; width: min(100%, calc(var(--dk-h, 700px) - 60px)); margin: 0; }
+  body.dk .ep > .ep-label, body.dk .recap > .ep-label { grid-column: 2; grid-row: 1; }
+  body.dk .ep > .mg-cap, body.dk .recap > .mg-cap { grid-column: 2; grid-row: 2; align-self: center; font-size: 19px; line-height: 1.45; min-height: 0; max-width: none; }
+  body.dk .ep > .ep-ctrl, body.dk .recap > .ep-ctrl { grid-column: 2; grid-row: 3; max-width: none; }
+  body.dk .ep > details, body.dk .recap > details { grid-column: 1 / -1; }
+  .dk-screen[data-dk-kind="sec"]:has(> .demo, > .tbl, > .funnel) { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); column-gap: 24px; grid-auto-flow: dense; }
+  .dk-screen[data-dk-kind="sec"]:has(> .demo, > .tbl, > .funnel) > * { grid-column: 1; }
+  .dk-screen[data-dk-kind="sec"]:has(> .demo, > .tbl, > .funnel) > h3 { grid-column: 1 / -1; }
+  .dk-screen[data-dk-kind="sec"]:has(> .demo, > .tbl, > .funnel) > .demo,
+  .dk-screen[data-dk-kind="sec"]:has(> .demo, > .tbl, > .funnel) > .tbl,
+  .dk-screen[data-dk-kind="sec"]:has(> .demo, > .tbl, > .funnel) > .funnel { grid-column: 2; grid-row: 2 / span 12; align-self: start; }
+}
+/* short landscape (a phone on its side): tighter bars so the stage keeps its height */
+@media (max-height: 460px) {
+  .dk-top { padding-top: calc(3px + env(safe-area-inset-top, 0px)); padding-bottom: 4px; }
+  .dk-st small { display: none; }
+  .dk-nav button { min-height: 38px; }
+  .dk-pane > main.wrap { padding-top: 6px; padding-bottom: 6px; }
+}
+
+.dk-m-old{display:block;margin:14px auto 2px;text-align:center;font-size:14px;color:var(--muted);text-decoration:underline;min-height:44px;line-height:44px}
 /* TDF_MG recap scenes: the svg paints its own stage; this only sizes and quiets it */
 .mg-svg{display:block;width:100%;height:auto;aspect-ratio:1/1;border-radius:18px;overflow:hidden;background:var(--surface,#fff);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 .mg-svg text{pointer-events:none}
@@ -1997,7 +2171,7 @@ IF [Profit] > 0 THEN 'Profit' ELSE 'Loss' END</div>
     o.classList.add(cls);
     o.addEventListener("animationend", function h() { o.classList.remove(cls); o.removeEventListener("animationend", h); });
   }
-  function focusEl(el) { try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); } }
+  function focusEl(el) { try { if (window.TDF_DECK) window.TDF_DECK.show(el); } catch (x) {} try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); } }
   // "Select two" control: options toggle (aria-pressed), a third pick replaces the oldest, Check scores the pair.
   function multiCtl(opts, before, onCheck) {
     var el = document.createElement("div"); el.className = "q-act";
@@ -2098,7 +2272,7 @@ IF [Profit] > 0 THEN 'Profit' ELSE 'Loss' END</div>
     $(".reset", qz).addEventListener("click", function () {
       ans = []; store.set("quiz:" + id, ans);
       acts.forEach(function (a) { if (a) a.clear(); });
-      paint(); qz.scrollIntoView({ block: "start" });
+      paint(); if (window.TDF_DECK) window.TDF_DECK.show(qz); else qz.scrollIntoView({ block: "start" });
     });
     var sec = qz.closest ? qz.closest("section.lesson") : null;
     quizzes.push({ id: id, el: qz, qs: qs, pick: function (i) { return ans[i]; }, set: pickAt,
@@ -2196,7 +2370,7 @@ IF [Profit] > 0 THEN 'Profit' ELSE 'Loss' END</div>
   (function () {
     var mark = $("#l4Part2"), h3 = $("#l4Ref"); if (!mark || !h3) return;
     setTimeout(function () {
-      if (mark.nextElementSibling !== h3) h3.parentNode.insertBefore(mark, h3);
+      if (!window.TDF_DECK && mark.nextElementSibling !== h3) h3.parentNode.insertBefore(mark, h3);
       var meta = null; try { var el = $("#tdfMedia"); meta = el && JSON.parse(el.textContent); } catch (e) { meta = null; }
       var L = meta && meta.les && meta.les["4"], E = meta && meta.eps && meta.eps["4"];
       if (L && L.secs && L.dur) {
@@ -12762,6 +12936,8 @@ try{window.TDF_WALK&&TDF_WALK.init(document)}catch(e){}
   });
   au.addEventListener("timeupdate", function () {
     if (!mode) return;
+    // deck mode: a section's own narration stops at the section's end, just inside it so the screen never moves on
+    if (segEnd && mode.kind === "les" && au.currentTime >= segEnd - 0.08) { var se = segEnd; segEnd = 0; au.pause(); try { au.currentTime = Math.max(0, se - 0.2); } catch (e) {} }
     if (mode.kind === "les") lesson.tick();
     if ((mode.kind === "les" || mode.kind === "ep") && !au.paused && Date.now() - posAt > 5000) savePos();
   });
@@ -12819,7 +12995,7 @@ try{window.TDF_WALK&&TDF_WALK.init(document)}catch(e){}
 
   function Episode(n, host) {
     var E = M.eps[n], self = this, cur = -1, raf = 0, step = -1, lastCap = "";
-    this.n = n;
+    this.n = n; this.host = host;
     var dur = E.dur;
     // v3 episodes (E.mg): Eloise and Divya over TDF_MG motion-graphics scenes, one per scene id, captions under the stage
     var MGE = !!E.mg, mg = null;
@@ -12965,7 +13141,7 @@ try{window.TDF_WALK&&TDF_WALK.init(document)}catch(e){}
       if (playing) { cancelAnimationFrame(raf); raf = requestAnimationFrame(frame); } else if (mouth) { mouth.setAttribute("ry", "1"); }
     };
     this.idle = function () { au.pause(); self.state(false); cancelAnimationFrame(raf); };
-    this.resume = function (t) { try { host.scrollIntoView({ behavior: smooth(), block: "center" }); } catch (e) {} start(Math.max(0, Math.min(dur - 1, t))); };
+    this.resume = function (t) { try { if (window.TDF_DECK) window.TDF_DECK.show(host); else host.scrollIntoView({ behavior: smooth(), block: "center" }); } catch (e) {} start(Math.max(0, Math.min(dur - 1, t))); };
     this.ended = function () {
       self.state(false); cap.innerHTML = "";
       var played = store.get("eps", {}); played[n] = 1; store.set("eps", played);
@@ -12983,6 +13159,7 @@ try{window.TDF_WALK&&TDF_WALK.init(document)}catch(e){}
   var recaps = {};
   function Recap(R, n, host) {
     var self = this, raf = 0, lastCap = "", dur = R.dur, lt = R.lt, mg = null;
+    this.host = host;
     host.innerHTML =
       '<div class="ep-label"><b>Recap: ' + esc(R.title) + '</b><span>' + fmt(dur) + ' · animated · Eloise and Divya</span></div>' +
       '<div class="mg-stage"><div class="mg-host"></div>' +
@@ -13098,12 +13275,14 @@ try{window.TDF_WALK&&TDF_WALK.init(document)}catch(e){}
   }
   paintFollow();
 
+  var segEnd = 0; // deck mode: where the section being listened to ends (0: play on through the ride)
   var lesson = (function () {
     var curSec = -1, L = null, n = 0, lastSec = -1;
     function secAt(t) { var s = L.secs; for (var i = s.length - 1; i >= 0; i--) if (t >= s[i] - 0.05) return i; return 0; }
     function group() { return L && groups[n] ? (groups[n][curSec] || []) : []; }
     function jump(force) {
       var g = group(); if (!g[0]) return;
+      if (window.TDF_DECK) { autoUntil = Date.now() + 1500; try { window.TDF_DECK.show(g[0], { auto: true }); } catch (e) {} return; }
       var r = g[0].getBoundingClientRect();
       if (force || r.top < 60 || r.top > window.innerHeight * 0.7) {
         autoUntil = Date.now() + 1500;
@@ -13119,6 +13298,7 @@ try{window.TDF_WALK&&TDF_WALK.init(document)}catch(e){}
     }
     var api = {
       play: function (ride, secIdx, at) {
+        segEnd = 0;
         follow = store.get("follow", true); paintFollow();
         loadRide(ride).then(function () {
           if (!(mode && mode.kind === "les" && mode.ride === ride)) { use("les", ride); n = ride; L = M.les[ride]; curSec = -1; }
@@ -13148,8 +13328,11 @@ try{window.TDF_WALK&&TDF_WALK.init(document)}catch(e){}
       idle: function () { au.pause(); api.state(false); },
       ended: function () { api.state(false); $$(".reading").forEach(function (e) { e.classList.remove("reading"); }); $$('.listen[data-ride="' + n + '"] .lbl').forEach(function (x) { x.textContent = "Listen again"; }); },
       close: function () { au.pause(); lp.classList.remove("show"); document.body.classList.remove("lp-on"); $$(".reading").forEach(function (e) { e.classList.remove("reading"); }); },
-      next: function () { if (!L) return; var i = secAt(au.currentTime); if (i < L.secs.length - 1) au.currentTime = L.secs[i + 1]; },
-      seekTo: function (t) { if (!L || api.cur() !== n) return; au.currentTime = Math.max(0, Math.min(L.dur - 0.5, t)); api.tick(); },
+      next: function () { if (!L) return; var i = secAt(au.currentTime); if (i < L.secs.length - 1) { if (segEnd) segEnd = L.secs[i + 2] || L.dur; au.currentTime = L.secs[i + 1]; } },
+      seekTo: function (t) { if (!L || api.cur() !== n) return; t = Math.max(0, Math.min(L.dur - 0.5, t)); if (segEnd) segEnd = L.secs[secAt(t) + 1] || L.dur; au.currentTime = t; api.tick(); },
+      // deck mode: play one section's narration and stop at its end; tapping its Listen again pauses
+      playSeg: function (ride, i) { api.play(ride, i); var Ls = M.les[ride]; segEnd = Ls ? (Ls.secs[i + 1] || Ls.dur) : 0; },
+      toggleSeg: function (ride, i) { if (api.cur() === ride && !au.paused && secAt(au.currentTime) === i) { au.pause(); return; } api.playSeg(ride, i); },
       jump: jump,
       group: group,
       cur: function () { return mode && mode.kind === "les" ? n : 0; }
@@ -13172,6 +13355,23 @@ try{window.TDF_WALK&&TDF_WALK.init(document)}catch(e){}
     else return;
     e.preventDefault();
   });
+  // deck mode (deck.js): what the deck needs when a screen changes
+  window.TDF_MEDIA = {
+    playSeg: lesson.playSeg, toggleSeg: lesson.toggleSeg,
+    // leaving `from` for `to`: a player on the screen being left pauses (it keeps its place); a section's own
+    // narration stops with its screen; the whole ride's narration plays on, and follow pauses only when the reader leaves the ride by hand
+    leaving: function (from, to, auto) {
+      if (!mode || au.paused || !from) return;
+      var h = mode.kind === "ep" ? (eps[mode.ride] && eps[mode.ride].host) : (mode.kind === "rc" ? (mode.ctl && mode.ctl.host) : null);
+      if (h) { if (from.contains(h)) au.pause(); return; }
+      if (mode.kind !== "les") return;
+      var g = lesson.group();
+      if (segEnd) { if (g[0] && from.contains(g[0])) au.pause(); return; }
+      if (auto || !follow) return;
+      var sec = to && to.closest ? to.closest("section.lesson") : null;
+      if (!sec || +sec.dataset.ride !== lesson.cur()) { setFollow(false, true); toast("Follow paused while you read. Tap Follow to jump back."); }
+    }
+  };
   // a hand scroll (wheel, touch, keys, scrollbar) that leaves the section being read more than a screen away turns Follow off
   ["wheel", "touchmove", "pointerdown", "keydown"].forEach(function (ev) {
     window.addEventListener(ev, function (e) { if (ev === "keydown" && !/^(Arrow|Page|Home$|End$| $|Spacebar$)/.test(e.key || "")) return; userAt = Date.now(); }, { passive: true, capture: true });
@@ -13266,7 +13466,7 @@ try{window.TDF_WALK&&TDF_WALK.init(document)}catch(e){}
       var title = parts[parts.length - 1] || "this section";
       if (!h.hasAttribute("aria-label") && parts.length) h.setAttribute("aria-label", parts.join(": "));
       b.setAttribute("aria-label", "Listen from " + title);
-      b.innerHTML = ICON.play; b.addEventListener("click", function () { lesson.play(n, i); });
+      b.innerHTML = ICON.play; b.addEventListener("click", function () { if (window.TDF_DECK) lesson.toggleSeg(n, i); else lesson.play(n, i); });
       h.appendChild(b);
     });
   });
@@ -13361,7 +13561,8 @@ try{window.TDF_WALK&&TDF_WALK.init(document)}catch(e){}
     for (n = 1; n <= 6; n++) if (done.indexOf(n) === -1) return document.getElementById("lesson-" + n);
     return cheat || six;
   }
-  function go(el) { if (!el) return; try { el.scrollIntoView({ block: "start" }); } catch (e) { el.scrollIntoView(); } }
+  window.TDF_continueTarget = continueTarget;
+  function go(el) { if (!el) return; if (window.TDF_DECK) { window.TDF_DECK.show(el); return; } try { el.scrollIntoView({ block: "start" }); } catch (e) { el.scrollIntoView(); } }
   function route(first) {
     var h = location.hash;
     if (h === "#continue") {
@@ -13384,6 +13585,8 @@ try{window.TDF_WALK&&TDF_WALK.init(document)}catch(e){}
   var main = $("main.wrap"), route = $(".route-card"), weights = $(".weights"), top = $("header.top");
   if (!main || !route || !weights || !window.matchMedia) return;
   var mq = window.matchMedia("(min-width: 720px) and (min-height: 480px)");
+  // deck mode (deck.js, every URL without ?page=1) is one fixed screen: the two-pane scrolling layout stays off there
+  var DECK = !/(^|[?&])page=1(&|$)/.test(location.search || "");
 
   var markR = document.createComment(" route-card "), markW = document.createComment(" weights ");
   route.parentNode.insertBefore(markR, route);
@@ -13452,6 +13655,7 @@ try{window.TDF_WALK&&TDF_WALK.init(document)}catch(e){}
     document.documentElement.style.setProperty("--toph", (h || 60) + "px");
   }
   function apply(on) {
+    if (DECK) on = false;
     if (on) {
       side.appendChild(route); side.appendChild(nav); side.appendChild(weights);
       if (side.parentNode !== shell) shell.insertBefore(side, main);
@@ -13470,6 +13674,644 @@ try{window.TDF_WALK&&TDF_WALK.init(document)}catch(e){}
   window.addEventListener("resize", setTop);
   apply(mq.matches);
   window.TDF_fold = { apply: apply, paint: paint };
+})();
+
+/* TDF deck: the whole course on one fixed screen, like watching a play on one stage.
+   Screens are built in place: each lesson, quiz and mock container becomes a "group" (.dk-group) whose
+   children are wrapped into sibling .dk-screen divs. Nothing is cloned and nodes never leave their own
+   container, so quiz scoring, the mock timer, misses, players, save-offline and the hash routes keep
+   their handlers. One screen is live at a time; the others carry .dk-off (display:none).
+   Moving on: swipe, Next/Back, tap zones, keys. A screen is fitted when shown: overflow splits its block
+   children onto "continued" screens, then the type steps down (zoom), then the block is scaled.
+   The old scrolling page stays reachable with ?page=1. Runs last, after media.js and fold.js. */
+(function () {
+  "use strict";
+  if (window.TDF_DECK) return;
+  if (/(^|[?&])page=1(&|$)/.test(location.search || "")) return;
+  var main = document.querySelector("main.wrap");
+  if (!main || !document.body) return;
+
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var kids = function (el) { return Array.prototype.slice.call(el.children); };
+  var store = {
+    get: function (k, d) { try { var v = localStorage.getItem("tdf:" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set: function (k, v) { try { localStorage.setItem("tdf:" + k, JSON.stringify(v)); } catch (e) {} }
+  };
+  var RM = null; try { RM = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null; } catch (e) {}
+  function reduced() { return !!(RM && RM.matches); }
+  var M = {}; try { M = JSON.parse($("#tdfMedia").textContent) || {}; } catch (e) { M = {}; }
+  var TITLES = M.titles || {};
+  var RIDES = { 1: "Ideas", 2: "Data", 3: "Charts", 4: "Analyze", 5: "Share", 6: "Review" };
+  $$(".station[data-ride]").forEach(function (s) { var l = $(".lbl", s); if (l) RIDES[+s.dataset.ride] = l.textContent.trim(); });
+  var hasRM = function (el, c) { return el && el.classList && el.classList.contains(c); };
+  var isScreen = function (el) { return hasRM(el, "dk-screen"); };
+  var isGroup = function (el) { return hasRM(el, "dk-group"); };
+
+  /* ---------- building screens ---------- */
+  function setMeta(s, m) {
+    s.__dk = m;
+    s.setAttribute("data-dk-key", m.key); s.setAttribute("data-dk-label", m.label); s.setAttribute("data-dk-kind", m.kind);
+    if (m.ride) s.setAttribute("data-dk-ride", m.ride);
+  }
+  // wrap `list` (consecutive children of `group`) into one screen; before===null appends the screen at the end
+  function mkScreen(group, list, m, before) {
+    var s = document.createElement("div"); s.className = "dk-screen dk-off";
+    setMeta(s, m);
+    group.insertBefore(s, before === undefined ? (list[0] || null) : before);
+    list.forEach(function (k) { s.appendChild(k); });
+    return s;
+  }
+  function mkGroup(el) { el.classList.add("dk-group"); el.classList.add("dk-off"); return el; }
+  function h3Text(h) {
+    var parts = [];
+    Array.prototype.forEach.call(h.childNodes, function (c) {
+      if (c.nodeType === 1 && c.tagName === "BUTTON") return;
+      var t = (c.textContent || "").replace(/\s+/g, " ").trim(); if (t) parts.push(t);
+    });
+    return { kicker: parts.length > 1 ? parts[0] : "", title: parts[parts.length - 1] || "Section" };
+  }
+  function btn(cls, text) { var b = document.createElement("button"); b.type = "button"; b.className = cls; b.textContent = text; return b; }
+
+  var run = null, res = null, mockBox = null, homeScreen = null;
+
+  function buildHero() {
+    var hero = $("section.hero"); if (!hero) return;
+    mkGroup(hero);
+    var A = [], B = [], C = [];
+    kids(hero).forEach(function (k) {
+      if (k.matches(".eyebrow, h1, .lede, .route-card")) A.push(k);
+      else if (k.matches(".triage")) B.push(k);
+      else C.push(k);
+    });
+    var start = document.createElement("div"); start.className = "dk-start";
+    start.innerHTML = '<button class="btn primary dk-go" type="button"></button><button class="btn dk-go2" type="button"></button>';
+    var lede = A.filter(function (k) { return k.matches(".lede"); })[0];
+    if (lede) { lede.insertAdjacentElement("afterend", start); A.splice(A.indexOf(lede) + 1, 0, start); } else { hero.appendChild(start); A.push(start); }
+    var footer = $("main.wrap > footer"); if (footer) C.push(footer);
+    homeScreen = mkScreen(hero, A, { key: "h:0", label: "Home", kind: "home", ride: 0 });
+    if (B.length) mkScreen(hero, B, { key: "h:1", label: "Short on time?", kind: "home", ride: 0 }, null);
+    if (C.length) mkScreen(hero, C, { key: "h:2", label: "Save for offline", kind: "home", ride: 0 }, null);
+    $(".dk-go", start).addEventListener("click", function () {
+      var s = savedScreen();
+      if (s) goTo(s, { dir: 1 }); else { var t = screenByKey("r1:title"); if (t) goTo(t, { dir: 1 }); }
+    });
+    $(".dk-go2", start).addEventListener("click", function () { var t = screenByKey("r1:title"); if (t) goTo(t, { dir: 1 }); });
+  }
+  function paintStart() {
+    var row = $(".dk-start"); if (!row) return;
+    var s = savedScreen(), go = $(".dk-go", row), go2 = $(".dk-go2", row);
+    if (s && s !== homeScreen) {
+      var m = s.__dk, where = m.ride ? "Ride " + m.ride + " · " + m.label : m.label;
+      go.textContent = "Resume · " + where; go2.hidden = false; go2.textContent = "Start from ride 1";
+    } else { go.textContent = "Start ride 1"; go2.hidden = true; }
+  }
+
+  function buildQuiz(qz, n) {
+    mkGroup(qz);
+    var id = qz.dataset.quiz, base = "r" + n + ":" + (id === "mix" ? "mix" : "quiz"), name = id === "mix" ? "Mixed review" : "Check yourself";
+    var head = kids(qz).filter(function (k) { return k.classList.contains("quiz-head"); })[0];
+    var foot = kids(qz).filter(function (k) { return k.classList.contains("quiz-foot"); })[0];
+    var qs = kids(qz).filter(function (k) { return k.classList.contains("q"); });
+    qs.forEach(function (q, i) {
+      var lab = document.createElement("div"); lab.className = "dk-qh"; lab.textContent = name + " · " + (i + 1) + " of " + qs.length;
+      var s = mkScreen(qz, [q], { key: base + ":q" + (i + 1), label: lab.textContent, kind: "q", ride: n, qn: i + 1 });
+      s.insertBefore(lab, q);
+    });
+    var tail = []; if (head) tail.push(head); if (foot) tail.push(foot);
+    return mkScreen(qz, tail, { key: base + ":wrap", label: id === "mix" ? "Mixed review score" : "Your score", kind: "wrap", ride: n }, null);
+  }
+  function wrapMock() {
+    if (!run || !res) return;
+    var n = $$(".mq", run).length;
+    kids(run).forEach(function (c) {
+      if (isScreen(c) || c.classList.contains("mock-bar")) return;
+      if (c.classList.contains("mq")) {
+        var k = +(c.id || "").replace(/\D/g, "") || 0;
+        mkScreen(run, [c], { key: "r6:mock:q" + k, label: "Mock · " + k + " of " + n, kind: "mq", ride: 6 });
+      } else if (c.classList.contains("mock-foot")) mkScreen(run, [c], { key: "r6:mock:submit", label: "Submit the mock", kind: "mockfoot", ride: 6 });
+      else mkScreen(run, [c], { key: "r6:mock:x", label: "Mock exam", kind: "mockx", ride: 6 });
+    });
+    var raw = kids(res).filter(function (c) { return !isScreen(c); });
+    if (raw.length) mkScreen(res, raw, { key: "r6:mock:result", label: "Mock result", kind: "result", ride: 6 });
+  }
+  function buildMock(box) {
+    mockBox = box; mkGroup(box);
+    var head = [], c = kids(box);
+    c.forEach(function (k) { if (k.matches(".mock-head, .mock-note, .mock-ctl")) head.push(k); });
+    run = $(".mock-run", box); res = $(".mock-result", box);
+    if (head.length) mkScreen(box, head, { key: "r6:mock", label: "Mock exam", kind: "mock", ride: 6 });
+    if (run) mkGroup(run); if (res) mkGroup(res);
+    wrapMock();
+    if (window.MutationObserver && run && res) {
+      var pending = false;
+      var mo = new MutationObserver(function () {
+        if (pending) return; pending = true;
+        Promise.resolve().then(function () { pending = false; wrapMock(); index(); afterMockChange(); });
+      });
+      mo.observe(run, { childList: true }); mo.observe(res, { childList: true });
+      mo.observe(run, { attributes: true, attributeFilter: ["hidden"] }); mo.observe(res, { attributes: true, attributeFilter: ["hidden"] });
+    }
+  }
+  function afterMockChange() {
+    if (!cur) return;
+    if (!document.body.contains(cur) || !isReachable(cur)) {
+      // the screen we were on was re-rendered away (the mock started, was submitted or quit): stay inside the mock
+      var s = firstScreenIn(mockBox); if (s) goTo(s, { noAnim: true, noFocus: true });
+    } else paintChrome();
+  }
+
+  function buildLesson(sec) {
+    var n = +sec.dataset.ride; mkGroup(sec);
+    var list = kids(sec), title = [], plan = [], pending = null, secIdx = 0, rc = 0, xi = 0, doneRow = null, quizWrap = null;
+    function flush() { if (pending && pending.list.length) plan.push(pending); pending = null; }
+    list.forEach(function (el) {
+      if (el.tagName === "SCRIPT") return;
+      if (el.matches(".lesson-head, .listen-row") || (el.matches("p.lede") && !secIdx && !pending)) { title.push(el); return; }
+      if (el.classList.contains("ep")) { flush(); plan.push({ list: [el], m: { key: "r" + n + ":ep", label: "Episode", kind: "ep", ride: n } }); return; }
+      if (el.classList.contains("recap")) {
+        flush(); rc++; var lb = $(".ep-label b", el);
+        plan.push({ list: [el], m: { key: "r" + n + ":rc" + rc, label: lb ? lb.textContent.trim() : "Recap", kind: "recap", ride: n } }); return;
+      }
+      if (el.tagName === "ASIDE" && el.classList.contains("traps")) { flush(); pending = { list: [el], m: { key: "r" + n + ":traps", label: "Exam traps", kind: "traps", ride: n } }; return; }
+      if (el.classList.contains("part-mark")) { flush(); pending = { list: [el], m: { key: "r" + n + ":part", label: "End of Part 1", kind: "part", ride: n } }; return; }
+      if (el.classList.contains("misses")) { flush(); pending = { list: [el], m: { key: "r" + n + ":misses", label: "Your misses", kind: "misses", ride: n } }; return; }
+      if (el.classList.contains("cheat")) { flush(); pending = { list: [el], m: { key: "r" + n + ":cheat", label: "Cheat sheet", kind: "cheat", ride: n } }; return; }
+      if (el.classList.contains("quiz")) { flush(); quizWrap = buildQuiz(el, n); return; }
+      if (el.classList.contains("mock")) { flush(); buildMock(el); return; }
+      if (el.classList.contains("done-row")) { flush(); doneRow = el; return; }
+      if (el.tagName === "H3") { flush(); secIdx++; var t = h3Text(el); pending = { list: [el], m: { key: "r" + n + ":s" + secIdx, label: t.title, kicker: t.kicker, kind: "sec", ride: n, sec: secIdx } }; return; }
+      if (pending && pending.m.kind === "cheat") { flush(); pending = { list: [], m: { key: "r" + n + ":exam", label: "Exam day", kind: "exam", ride: n } }; }
+      if (!pending) { xi++; pending = { list: [], m: { key: "r" + n + ":x" + xi, label: TITLES[n] || "Ride " + n, kind: "sec", ride: n } }; }
+      pending.list.push(el);
+    });
+    flush();
+    var h2 = $(".lesson-head h2", sec);
+    if (title.length) mkScreen(sec, title, { key: "r" + n + ":title", label: "Ride " + n + " · " + (h2 ? h2.textContent.trim() : TITLES[n] || ""), kind: "title", ride: n });
+    plan.forEach(function (p) { mkScreen(sec, p.list, p.m); });
+    // the ride's end: the done button and the next stop, on the score screen when the quiz has one
+    var endRow = document.createElement("div"); endRow.className = "dk-end";
+    var nx = btn("btn primary dk-next-ride", n < 6 ? "Next stop: Ride " + (n + 1) + " · " + (RIDES[n + 1] || "") : "Back to the route");
+    nx.addEventListener("click", function () { var t = n < 6 ? screenByKey("r" + (n + 1) + ":title") : homeScreen; if (t) goTo(t, { dir: 1 }); });
+    endRow.appendChild(nx);
+    if (quizWrap && doneRow && n < 6) { quizWrap.appendChild(doneRow); quizWrap.appendChild(endRow); }
+    else {
+      var endList = []; if (doneRow) endList.push(doneRow);
+      sec.appendChild(endRow); endList.push(endRow);
+      mkScreen(sec, endList, { key: "r" + n + ":end", label: n === 6 ? "Review done" : "Ride " + n + " done", kind: "end", ride: n });
+    }
+  }
+
+  /* ---------- the chrome: top bar, stage, bottom bar, menu ---------- */
+  var root, topBar, stage, view, nav, live, menu, backBtn, nextBtn, labelEl, stepEl, barEl, menuBtn;
+  function buildChrome() {
+    root = document.createElement("div"); root.className = "dk-root";
+    root.innerHTML =
+      '<div class="dk-top">' +
+        '<button class="dk-menu-btn" type="button" aria-label="Chapters" aria-haspopup="dialog" aria-expanded="false"><span></span><span></span><span></span></button>' +
+        '<nav class="dk-route" aria-label="Rides">' + [1, 2, 3, 4, 5, 6].map(function (r) {
+          return '<button class="dk-st" type="button" data-ride="' + r + '" aria-label="Ride ' + r + ', ' + (RIDES[r] || "") + '"><i>' + r + '</i><small>' + (RIDES[r] || "") + '</small></button>';
+        }).join("") + '</nav>' +
+        '<span class="dk-step" aria-hidden="true"></span>' +
+        '<div class="dk-bar" aria-hidden="true"><i></i></div>' +
+      '</div>' +
+      '<div class="dk-stage"><div class="dk-view dk-pane"></div></div>' +
+      '<div class="dk-nav">' +
+        '<button class="dk-back" type="button" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg><span>Back</span></button>' +
+        '<span class="dk-label" aria-hidden="true"></span>' +
+        '<button class="dk-next" type="button" aria-label="Next"><span>Next</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></button>' +
+      '</div>' +
+      '<div class="dk-live vh" role="status" aria-live="polite"></div>';
+    document.body.appendChild(root);
+    topBar = $(".dk-top", root); stage = $(".dk-stage", root); view = $(".dk-view", root); nav = $(".dk-nav", root); live = $(".dk-live", root);
+    backBtn = $(".dk-back", root); nextBtn = $(".dk-next", root); labelEl = $(".dk-label", root); stepEl = $(".dk-step", root); barEl = $(".dk-bar i", root); menuBtn = $(".dk-menu-btn", root);
+    backBtn.addEventListener("click", function () { back(); });
+    nextBtn.addEventListener("click", function () { next(); });
+    menuBtn.addEventListener("click", function () { if (menuOpen) closeMenu(); else openMenu(); });
+    $$(".dk-st", root).forEach(function (b) { b.addEventListener("click", function () { var t = screenByKey("r" + b.dataset.ride + ":title"); if (t) goTo(t); }); });
+    // menu overlay
+    menu = document.createElement("div"); menu.className = "dk-menu"; menu.hidden = true;
+    menu.setAttribute("role", "dialog"); menu.setAttribute("aria-modal", "true"); menu.setAttribute("aria-label", "Chapters");
+    menu.innerHTML = '<div class="dk-m-in"><div class="dk-m-head"><b>Chapters</b><span class="dk-m-stat"></span><button class="dk-m-x" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>' +
+      '<div class="dk-m-rides" role="tablist" aria-label="Rides"></div><div class="dk-m-secs" role="list"></div></div>';
+    document.body.appendChild(menu);
+    $(".dk-m-x", menu).addEventListener("click", closeMenu);
+    /* a quiet way back to the old scrolling page, in case a screen ever misbehaves */
+    var old = document.createElement("a"); old.className = "dk-m-old"; old.textContent = "Open the scrolling page instead";
+    old.href = location.pathname + "?page=1"; $(".dk-m-in", menu).appendChild(old);
+    menu.addEventListener("click", function (e) { if (e.target === menu) closeMenu(); });
+    // the live tree moves onto the stage
+    var shell = main.parentNode;
+    view.appendChild(main);
+    if (shell && shell.classList && shell.classList.contains("shell") && !shell.children.length && shell.parentNode) shell.parentNode.removeChild(shell);
+    view.addEventListener("scroll", function () { view.scrollTop = 0; view.scrollLeft = 0; }, { passive: true });
+  }
+
+  /* ---------- the screen list ---------- */
+  var list = [], vis = [], cur = null;
+  function hiddenEl(el) { return !!(el.hidden || el.getAttribute("hidden") != null); }
+  function index() {
+    list = [];
+    (function walk(g) {
+      if (hiddenEl(g)) return;
+      kids(g).forEach(function (c) { if (isScreen(c)) list.push(c); else if (isGroup(c)) walk(c); });
+    })(main);
+    vis = list.filter(function (s) { return !isEmpty(s); });
+  }
+  // a screen with nothing to show (the misses box while there are none, a mock result before any mock) is skipped
+  function isEmpty(s) {
+    var any = false;
+    kids(s).forEach(function (c) {
+      if (any) return;
+      if (c.tagName === "SCRIPT" || hiddenEl(c)) return;
+      if (c.classList.contains("dk-qh") || c.classList.contains("dk-cont-h") || c.classList.contains("dk-end")) return;
+      if (c.tagName === "DETAILS" && (c.classList.contains("tx") || c.classList.contains("eptx"))) return;
+      any = true;
+    });
+    return !any;
+  }
+  function isReachable(s) { return list.indexOf(s) !== -1; }
+  function firstScreenIn(g) {
+    if (!g) return null; if (isScreen(g)) return g;
+    var found = null;
+    (function walk(x) { kids(x).some(function (c) { if (isScreen(c)) { found = c; return true; } if (isGroup(c)) { walk(c); return !!found; } return false; }); })(g);
+    return found;
+  }
+  function screenOf(el) {
+    if (!el || !el.closest) return null;
+    var s = el.closest(".dk-screen"); if (s) return s;
+    var g = isGroup(el) ? el : el.closest(".dk-group"); if (!g) return null;
+    if (run && res && (g === run || g === res || run.contains(el) || res.contains(el))) { wrapMock(); index(); s = el.closest(".dk-screen"); if (s) return s; }
+    return firstScreenIn(g);
+  }
+  function screenByKey(key) {
+    for (var i = 0; i < list.length; i++) if (list[i].__dk && list[i].__dk.key === key) return list[i];
+    return null;
+  }
+  function screenForKey(key) {
+    if (!key) return null;
+    var s = screenByKey(key); if (s) return s;
+    s = screenByKey(key.replace(/\+\d+$/, "")); if (s) return s;
+    var m = /^(r\d+):/.exec(key); if (m) s = screenByKey(m[1] + ":title");
+    return s;
+  }
+  function savedScreen() { var p = store.get("deck", null); return p && p.key ? screenForKey(p.key) : null; }
+
+  // show the path from the root to `s`; every other screen and group along it goes dark
+  function reveal(s) {
+    var node = s, parent = s.parentNode;
+    while (parent) {
+      kids(parent).forEach(function (c) {
+        if (c === node) c.classList.remove("dk-off");
+        else if (isScreen(c) || isGroup(c)) c.classList.add("dk-off");
+      });
+      if (parent === main) break;
+      node = parent; parent = node.parentNode;
+    }
+    main.classList.remove("dk-off");
+  }
+
+  /* ---------- fitting: nothing may scroll ---------- */
+  var SPLIT = ".cheat, .mock-miss-list, .misses-list";
+  var ZOOMS = [0.95, 0.9, 0.85];
+  function rect(el) { return el.getBoundingClientRect(); }
+  function weightless(c) {
+    if (c.tagName === "SCRIPT" || hiddenEl(c)) return true;
+    if (c.tagName === "DETAILS" && (c.classList.contains("tx") || c.classList.contains("eptx"))) return true;
+    return rect(c).height === 0;
+  }
+  function firstHeavy(s) { var k = kids(s); for (var i = 0; i < k.length; i++) if (!weightless(k[i]) && !k[i].classList.contains("dk-cont-h") && !k[i].classList.contains("dk-qh")) return k[i]; return k[0] || null; }
+  // pull the continuations that follow `s` back into it (split lists go back into their own container when it is here)
+  function merge(s) {
+    var origin = (s.__dk && s.__dk.origin) || s, nxt = s.nextElementSibling;
+    while (nxt && nxt.__dk && nxt.__dk.origin === origin) {
+      var after = nxt.nextElementSibling;
+      kids(nxt).forEach(function (c) {
+        if (c.classList.contains("dk-cont-h")) { nxt.removeChild(c); return; }
+        var o = c.__dkSplitOf;
+        if (o && s.contains(o)) { kids(c).forEach(function (x) { o.appendChild(x); }); nxt.removeChild(c); return; }
+        s.appendChild(c);
+      });
+      nxt.parentNode.removeChild(nxt); nxt = after;
+    }
+  }
+  function resetFit(s) { s.style.zoom = ""; s.style.transform = ""; s.classList.remove("dk-zoomed", "dk-scaled"); }
+  function newCont(s, tail) {
+    var origin = (s.__dk && s.__dk.origin) || s, n = ((s.__dk && s.__dk.n) || 0) + 1;
+    var c = document.createElement("div"); c.className = "dk-screen dk-off dk-cont";
+    setMeta(c, { key: origin.__dk.key + "+" + n, label: origin.__dk.label, kind: origin.__dk.kind, ride: origin.__dk.ride, origin: origin, n: n });
+    var h = document.createElement("div"); h.className = "dk-cont-h"; h.textContent = origin.__dk.label + " · continued"; c.appendChild(h);
+    tail.forEach(function (t) { c.appendChild(t); });
+    if (s.style.zoom) c.style.zoom = s.style.zoom;
+    s.parentNode.insertBefore(c, s.nextSibling);
+    return c;
+  }
+  function fit(s) {
+    if (!s || !s.__dk) return;
+    merge(s); resetFit(s);
+    var vr = rect(view), avail = vr.height - 2, top = vr.top;
+    if (!(avail > 40)) return; // no layout here (tests without a browser)
+    for (var guard = 0, z = 0; guard < 16; guard++) {
+      var all = kids(s), heavy = all.filter(function (k) { return !weightless(k); });
+      if (!heavy.length) return;
+      var cut = -1;
+      for (var k = 0; k < heavy.length; k++) if (rect(heavy[k]).bottom - top > avail + 0.5) { cut = k; break; }
+      if (cut === -1) return;
+      var blk = heavy[cut], at = all.indexOf(blk);
+      if (blk.matches(SPLIT)) {
+        var items = kids(blk), keep = 0;
+        for (var j = 0; j < items.length; j++) { if (rect(items[j]).bottom - top > avail + 0.5) break; keep = j + 1; }
+        if (keep > 0 && keep < items.length) {
+          var extra = blk.cloneNode(false); extra.removeAttribute("id"); extra.classList.remove("dk-off"); extra.__dkSplitOf = blk.__dkSplitOf || blk;
+          items.slice(keep).forEach(function (it) { extra.appendChild(it); });
+          newCont(s, [extra].concat(all.slice(at + 1))); return;
+        }
+      }
+      if (cut > 0) {
+        var tail = all.slice(at);
+        if (tail.some(function (t) { return !weightless(t); })) newCont(s, tail);
+        return;
+      }
+      if (z < ZOOMS.length) { s.style.zoom = String(ZOOMS[z++]); s.classList.add("dk-zoomed"); continue; }
+      var H = rect(heavy[heavy.length - 1]).bottom - top;
+      if (H > avail) { s.style.transform = "scale(" + (avail / H).toFixed(4) + ")"; s.classList.add("dk-scaled"); }
+      return;
+    }
+  }
+  var lastSize = { w: 0, h: 0 }, rafR = 0;
+  function onResize() {
+    if (rafR) return;
+    rafR = requestAnimationFrame(function () {
+      rafR = 0;
+      var r = rect(view), w = Math.round(r.width), h = Math.round(r.height);
+      document.documentElement.style.setProperty("--dk-h", h + "px");
+      document.documentElement.style.setProperty("--dk-w", w + "px");
+      if (nav) document.documentElement.style.setProperty("--dk-navh", Math.round(rect(nav).height) + "px");
+      if (Math.abs(w - lastSize.w) < 2 && Math.abs(h - lastSize.h) < 2) return;
+      lastSize = { w: w, h: h };
+      refit();
+    });
+  }
+  // the same content stays in front of the reader after the viewport changes
+  function refit() {
+    if (!cur) return;
+    var anchor = firstHeavy(cur), origin = (cur.__dk && cur.__dk.origin) || cur;
+    if (anchor && anchor.__dkSplitOf) anchor = anchor.firstElementChild || anchor; // a split list's clone goes away on merge; its first item stays
+    reveal(origin); fit(origin); index();
+    var s = (anchor && screenOf(anchor)) || origin;
+    cur = null; goTo(s, { noAnim: true, noFocus: true });
+  }
+  function lpWatch() {
+    var lp = $(".lp"); if (!lp) return;
+    var set = function () { document.documentElement.style.setProperty("--dk-lph", (lp.classList.contains("show") ? Math.round(rect(lp).height) : 0) + "px"); };
+    if (window.MutationObserver) new MutationObserver(set).observe(lp, { attributes: true, attributeFilter: ["class"] });
+    if (window.ResizeObserver) new ResizeObserver(set).observe(lp);
+    set();
+  }
+
+  /* ---------- moving between screens ---------- */
+  var ghostT = 0;
+  function clearGhosts() { $$(".dk-ghost", stage).forEach(function (g) { g.parentNode.removeChild(g); }); view.className = "dk-view dk-pane"; }
+  function stripIds(n) { $$("[id]", n).forEach(function (x) { x.removeAttribute("id"); }); $$("[aria-live]", n).forEach(function (x) { x.removeAttribute("aria-live"); }); }
+  // a still picture of the outgoing screen, in shells of its ancestors so it keeps their styles
+  function makeGhost(from) {
+    try {
+      var inner = from.cloneNode(true); inner.removeAttribute("id"); stripIds(inner);
+      var top = inner, node = from.parentNode;
+      while (node && node !== main) { var sh = node.cloneNode(false); sh.removeAttribute("id"); sh.classList.remove("dk-off"); sh.appendChild(top); top = sh; node = node.parentNode; }
+      var ms = main.cloneNode(false); ms.removeAttribute("id"); ms.appendChild(top);
+      var g = document.createElement("div"); g.className = "dk-ghost dk-pane"; g.setAttribute("aria-hidden", "true");
+      try { g.inert = true; } catch (e) {}
+      g.appendChild(ms); stage.appendChild(g);
+      return g;
+    } catch (e) { return null; }
+  }
+  function animate(ghost, dir) {
+    if (!ghost) return;
+    var cls = reduced() ? "x" : (dir < 0 ? "b" : "f");
+    ghost.classList.add(cls);
+    if (!reduced()) { void view.offsetWidth; view.classList.add(dir < 0 ? "dk-in-b" : "dk-in-f"); }
+    var done = function () { if (ghost.parentNode) ghost.parentNode.removeChild(ghost); view.classList.remove("dk-in-b", "dk-in-f"); };
+    ghost.addEventListener("animationend", done);
+    clearTimeout(ghostT); ghostT = setTimeout(done, 700);
+  }
+  function rideOf(s) { return s && s.__dk ? (s.__dk.ride || 0) : 0; }
+  function headingOf(s) { return $("h1, h2, h3, .q-text, .dk-qh, .dk-cont-h, .ep-label b, .mq-dom, h4, .misses-head h3, b", s); }
+  function announce(s) {
+    var i = vis.indexOf(s), r = rideOf(s), inRide = vis.filter(function (x) { return rideOf(x) === r; }), j = inRide.indexOf(s);
+    var msg = "Step " + (j + 1) + " of " + inRide.length + (r ? ", ride " + r : "") + ": " + s.__dk.label + (i === vis.length - 1 ? ". Last screen." : "");
+    live.textContent = ""; setTimeout(function () { live.textContent = msg; }, 50);
+  }
+  function focusHead(s) {
+    var h = headingOf(s); if (!h) h = s;
+    if (!h.hasAttribute("tabindex")) h.setAttribute("tabindex", "-1");
+    try { h.focus({ preventScroll: true }); } catch (e) { try { h.focus(); } catch (x) {} }
+  }
+  var ROUTE_IDS = { title: function (s) { return "lesson-" + s.__dk.ride; } };
+  function setHash(s) {
+    var id = "";
+    if (s === homeScreen) id = "";
+    else if (s.__dk.kind === "title") id = "lesson-" + s.__dk.ride;
+    else { var el = $(".ep[id], .quiz[id], .cheat[id], .mock[id], .misses[id], .traps[id], .recap[id]", s) || (s.parentNode && s.parentNode.id && s.parentNode.classList.contains("quiz") ? s.parentNode : null); if (el && el.id && s.__dk.kind !== "wrap") id = el.id; }
+    try {
+      var url = location.pathname + location.search + (id ? "#" + id : "");
+      if (location.hash !== (id ? "#" + id : "") && location.protocol !== "file:") history.replaceState(history.state, "", url);
+    } catch (e) {}
+  }
+  function nearestLive(s) {
+    var i = list.indexOf(s); if (i === -1) return null;
+    for (var j = i; j < list.length; j++) if (!isEmpty(list[j])) return list[j];
+    for (j = i - 1; j >= 0; j--) if (!isEmpty(list[j])) return list[j];
+    return null;
+  }
+  function goTo(s, o) {
+    o = o || {};
+    if (!s || !document.body.contains(s)) return false;
+    index();
+    if (!isReachable(s)) return false;
+    if (isEmpty(s)) { s = nearestLive(s); if (!s) return false; }
+    var from = cur;
+    if (from === s && !o.force) { paintChrome(); return true; }
+    var dir = o.dir || (from && list.indexOf(s) < list.indexOf(from) ? -1 : 1);
+    if (from && from !== s) {
+      try { if (window.TDF_MEDIA && window.TDF_MEDIA.leaving) window.TDF_MEDIA.leaving(from, s, !!o.auto); } catch (e) {}
+    }
+    clearGhosts();
+    var ghost = (from && from !== s && !o.noAnim && document.body.contains(from)) ? makeGhost(from) : null;
+    reveal(s);
+    try { fit(s); } catch (e) {}
+    cur = s; index();
+    if (s === homeScreen) paintStart();
+    paintChrome(); setHash(s);
+    if (rideOf(s)) store.set("deck", { key: s.__dk.key, t: Date.now() }); // Home itself is never the place to resume
+    announce(s);
+    if (!o.noFocus && !o.auto) focusHead(s);
+    animate(ghost, dir);
+    return true;
+  }
+  function show(el, o) {
+    o = o || {};
+    var s = screenOf(el); if (!s) return false;
+    var ok = goTo(s, o);
+    if (ok && el.nodeType === 1 && !s.contains(el)) { var s2 = screenOf(el); if (s2 && s2 !== s) goTo(s2, { noAnim: true, noFocus: o.noFocus, auto: o.auto }); }
+    return ok;
+  }
+  function next() { if (!cur) return false; var i = vis.indexOf(cur); if (i === -1 || i >= vis.length - 1) return false; return goTo(vis[i + 1], { dir: 1 }); }
+  function back() { if (!cur) return false; var i = vis.indexOf(cur); if (i <= 0) return false; return goTo(vis[i - 1], { dir: -1 }); }
+
+  function paintChrome() {
+    if (!cur) return;
+    var r = rideOf(cur), inRide = vis.filter(function (x) { return rideOf(x) === r; }), j = inRide.indexOf(cur), i = vis.indexOf(cur);
+    var doneArr = store.get("done", []); if (!Array.isArray(doneArr)) doneArr = [];
+    $$(".dk-st", topBar).forEach(function (b) {
+      var n = +b.dataset.ride;
+      b.classList.toggle("here", n === r); b.classList.toggle("done", doneArr.indexOf(n) !== -1 || !!$('.station[data-ride="' + n + '"].done'));
+      b.setAttribute("aria-current", n === r ? "true" : "false");
+    });
+    stepEl.textContent = (j + 1) + " / " + inRide.length;
+    barEl.style.transform = "scaleX(" + (inRide.length ? (j + 1) / inRide.length : 0) + ")";
+    var m = cur.__dk, lab = m.label; if (m.kicker && m.kind === "sec") lab = m.kicker + " · " + lab;
+    labelEl.textContent = lab;
+    backBtn.disabled = i <= 0; nextBtn.disabled = i >= vis.length - 1;
+    document.body.setAttribute("data-dk-ride", r);
+    document.body.setAttribute("data-dk-kind", m.kind);
+    paintStart();
+  }
+
+  /* ---------- chapter picker ---------- */
+  var menuOpen = false, menuRide = 0;
+  function entries(r) {
+    var out = [], seenQuiz = {}, seenKind = {};
+    vis.forEach(function (s) {
+      var m = s.__dk; if (rideOf(s) !== r || m.origin) return;
+      if (m.kind === "q") { var gk = m.key.replace(/:q\d+$/, ""); if (seenQuiz[gk]) return; seenQuiz[gk] = 1; out.push({ s: s, t: /:mix:/.test(m.key) ? "Mixed review" : "Check yourself" }); return; }
+      if (m.kind === "mq") { if (seenKind.mq) return; seenKind.mq = 1; out.push({ s: s, t: "Mock · questions" }); return; }
+      if (m.kind === "wrap" || m.kind === "mockfoot" || m.kind === "mockx") return;
+      out.push({ s: s, t: m.kind === "sec" && m.kicker ? m.kicker + " · " + m.label : m.label });
+    });
+    return out;
+  }
+  function paintMenu() {
+    var rides = $(".dk-m-rides", menu), secs = $(".dk-m-secs", menu), stat = $("#topStat .ts-full") || $("#topStat");
+    $(".dk-m-stat", menu).textContent = stat ? stat.textContent : "";
+    rides.innerHTML = "";
+    [0, 1, 2, 3, 4, 5, 6].forEach(function (r) {
+      var b = btn("dk-m-ride" + (r === menuRide ? " on" : ""), ""); b.setAttribute("role", "tab"); b.setAttribute("aria-selected", r === menuRide ? "true" : "false");
+      b.innerHTML = r ? "<i>" + r + "</i><span>" + (RIDES[r] || "") + "</span>" : "<i>&#8962;</i><span>Home</span>";
+      b.addEventListener("click", function () { menuRide = r; paintMenu(); });
+      rides.appendChild(b);
+    });
+    secs.innerHTML = "";
+    entries(menuRide).forEach(function (e) {
+      var b = btn("dk-m-sec" + (e.s === cur ? " now" : ""), e.t); b.setAttribute("role", "listitem");
+      if (e.s.__dk.kind === "title" && menuRide) b.textContent = "Start: " + (TITLES[menuRide] || e.t);
+      b.addEventListener("click", function () { closeMenu(); goTo(e.s); });
+      secs.appendChild(b);
+    });
+  }
+  var menuFrom = null;
+  function openMenu() {
+    index(); menuRide = rideOf(cur); menuFrom = document.activeElement;
+    paintMenu(); menu.hidden = false; menuOpen = true; document.body.classList.add("dk-menu-open");
+    menuBtn.setAttribute("aria-expanded", "true");
+    try { $(".dk-m-x", menu).focus(); } catch (e) {}
+  }
+  function closeMenu() {
+    if (!menuOpen) return;
+    menu.hidden = true; menuOpen = false; document.body.classList.remove("dk-menu-open");
+    menuBtn.setAttribute("aria-expanded", "false");
+    try { (menuFrom && document.body.contains(menuFrom) ? menuFrom : menuBtn).focus({ preventScroll: true }); } catch (e) {}
+  }
+
+  /* ---------- input: swipe, tap zones, keys, links ---------- */
+  var pd = null, swallowUntil = 0;
+  function isControl(t) {
+    return !!(t && t.closest && t.closest("button, a, input, select, textarea, summary, label, [role=slider], [role=button], .opt, .stage, .mg-stage, .tbl, .demo, .funnel, .chart, .lp, .dk-top, .dk-nav, svg, .mock-bar"));
+  }
+  function wireInput() {
+    stage.addEventListener("pointerdown", function (e) {
+      if (menuOpen || (e.pointerType === "mouse" && e.button !== 0)) { pd = null; return; }
+      var t = e.target, no = !!(t.closest && t.closest("input, select, textarea, [role=slider], .segs, .lp-bar, .opt, .mock-bar, .demo-ctrl, [contenteditable]"));
+      var sc = t.closest && t.closest(".tbl, .formula"); if (sc && sc.scrollWidth > sc.clientWidth + 1) no = true;
+      pd = { x: e.clientX, y: e.clientY, t: Date.now(), swipe: !no, target: t };
+    }, { passive: true });
+    stage.addEventListener("pointercancel", function () { pd = null; }, { passive: true });
+    stage.addEventListener("pointerup", function (e) {
+      if (!pd) return; var p = pd; pd = null;
+      var dx = e.clientX - p.x, dy = e.clientY - p.y, dt = Math.max(1, Date.now() - p.t), ax = Math.abs(dx), ay = Math.abs(dy);
+      if (p.swipe && ax > 1.5 * ay && (ax >= 70 || (ax >= 30 && ax / dt >= 0.45))) {
+        swallowUntil = Date.now() + 400;
+        if (dx < 0) next(); else back();
+        return;
+      }
+      if (ax < 10 && ay < 10 && dt < 500 && !isControl(p.target)) {
+        try { var sel = window.getSelection && window.getSelection(); if (sel && String(sel).length) return; } catch (x) {}
+        var r = rect(stage), x = e.clientX - r.left;
+        if (x > r.width * 2 / 3) next(); else if (x < r.width / 3) back();
+      }
+    });
+    document.addEventListener("click", function (e) {
+      if (Date.now() < swallowUntil) { e.stopPropagation(); e.preventDefault(); return; }
+      var a = e.target.closest && e.target.closest("a[href]"); if (!a) return;
+      var href = a.getAttribute("href") || ""; if (href.charAt(0) !== "#" || href.length < 2) return;
+      var id = href.slice(1), el = id === "continue" ? continueTarget() : document.getElementById(id);
+      if (!el) return;
+      e.preventDefault(); closeMenu(); show(el);
+    }, true);
+    document.addEventListener("keydown", function (e) {
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+      if (menuOpen) { if (e.key === "Escape") { e.preventDefault(); closeMenu(); } return; }
+      var t = e.target;
+      if (t && t.closest && t.closest("button, a, input, select, textarea, summary, [role=slider], [contenteditable], .opt")) return;
+      var k = e.key;
+      if (k === "ArrowRight" || k === "PageDown") next();
+      else if (k === "ArrowLeft" || k === "PageUp") back();
+      else if (k === " " || k === "Spacebar") { if (e.shiftKey) back(); else next(); }
+      else return;
+      e.preventDefault();
+    });
+    window.addEventListener("hashchange", function () {
+      var id = location.hash.slice(1); if (!id) return;
+      var el = id === "continue" ? continueTarget() : document.getElementById(id);
+      if (el) show(el);
+    });
+    if (window.ResizeObserver) new ResizeObserver(onResize).observe(view);
+    window.addEventListener("resize", onResize);
+    window.addEventListener("orientationchange", onResize);
+    document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden" && cur && rideOf(cur)) store.set("deck", { key: cur.__dk.key, t: Date.now() }); });
+  }
+  function continueTarget() {
+    try { if (window.TDF_continueTarget) return window.TDF_continueTarget(); } catch (e) {}
+    var p = store.get("pos", null), done = store.get("done", []), n;
+    if (p && (p.mode === "ep" || p.mode === "les") && +p.id >= 1 && +p.id <= 6) return document.getElementById(p.mode === "ep" ? "ep-" + p.id : "lesson-" + p.id) || document.getElementById("lesson-" + p.id);
+    if (!Array.isArray(done)) done = [];
+    for (n = 1; n <= 6; n++) if (done.indexOf(n) === -1) return document.getElementById("lesson-" + n);
+    return document.getElementById("cheat") || document.getElementById("lesson-6");
+  }
+
+  /* ---------- go ---------- */
+  function init() {
+    document.body.classList.add("dk");
+    buildHero();
+    $$("section.lesson").forEach(buildLesson);
+    $$(".listen-row .note").forEach(function (n) { n.textContent = n.textContent.replace("Follows along as you scroll.", "Follows along, screen by screen."); });
+    buildChrome(); wireInput(); lpWatch();
+    index();
+    var h = location.hash.slice(1), el = h === "continue" ? continueTarget() : (h ? document.getElementById(h) : null);
+    var first = (el && screenOf(el)) || homeScreen || vis[0];
+    goTo(first, { noAnim: true, noFocus: true });
+    onResize();
+  }
+  window.TDF_DECK = {
+    show: show, next: next, back: back, goTo: goTo,
+    go: function (key) { var s = screenForKey(key); return s ? goTo(s) : false; },
+    resume: function () { var s = savedScreen(); return s ? goTo(s) : false; },
+    home: function () { return homeScreen ? goTo(homeScreen) : false; },
+    current: function () { return cur; }, screens: function () { index(); return vis.slice(); }, all: function () { index(); return list.slice(); },
+    keyOf: function (s) { return s && s.__dk ? s.__dk.key : null; }, meta: function (s) { return s && s.__dk ? s.__dk : null; },
+    refit: refit, fit: fit, open: openMenu, close: closeMenu, isEmpty: isEmpty, screenOf: screenOf
+  };
+  try { init(); } catch (e) { try { console.error("deck", e); } catch (x) {} }
 })();
 </script>
 
