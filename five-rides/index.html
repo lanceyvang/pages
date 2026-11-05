@@ -7547,21 +7547,29 @@ window.TDF_ART_BOARD={"easel":{"x":0.05,"y":0.2,"w":0.9,"h":0.47},"sign":{"x":0.
     var isE = who === 'eloise', code = isE ? 'N' : 'P';
     var g = api.group(S.L.mid, { x: o.x == null ? mark.x : o.x, y: o.y == null ? mark.y : o.y, o: o.enter ? 0 : 1 });
     if (o.flip) { g.__mg.g.sx = -1; g.__mg.g.dirty = true; }
+    /* nested rigs, each with its own tracks so the motions add up instead of cutting each other off:
+       g (where the actor stands) > ig (idle breathing and sway) > kg (pose kicks, walk waddle) > tg (talking) > poses */
+    var ig = api.group(g, {}), kg = api.group(ig, {}), tgp = api.group(kg, {});
     var poses = {}, names = POSES[who], first = null;
     for (var i = 0; i < names.length; i++) {
       var nm = who + '-' + names[i]; if (!S.has(nm)) continue;
       var sz = S.size(nm, { h: h });
-      var pg = api.group(g, { x: 0, y: 0, o: 0 });
+      var pg = api.group(tgp, { x: 0, y: 0, o: 0 });
       img(api, pg, nm, sz.w, sz.h, -sz.w / 2, -sz.h);
       poses[names[i]] = pg; if (!first) first = names[i];
     }
     /* a soft shadow at the feet */
     api.el('ellipse', { cx: 0, cy: 4, rx: 70, ry: 12, fill: '#000', opacity: 0.22 }, g);
-    var A = { g: g, who: who, poses: poses, cur: null, h: h, mark: mark };
+    var A = { g: g, ig: ig, kg: kg, tg: tgp, who: who, poses: poses, cur: null, h: h, mark: mark };
+    var lean = isE ? 1 : -1; /* toward the other actor */
     A.pose = function (name, t, dur) {
       if (!poses[name]) name = first; if (!name) return;
       if (t == null) { for (var k in poses) poses[k].setAttribute('opacity', k === name ? 1 : 0); A.cur = name; return; }
-      for (var k2 in poses) api.tw(poses[k2], { o: k2 === name ? 1 : 0 }, t, dur == null ? 0.22 : dur, 'inOutCubic');
+      var d = dur == null ? 0.3 : dur;
+      for (var k2 in poses) api.tw(poses[k2], { o: k2 === name ? 1 : 0 }, t, d, k2 === name ? 'outCubic' : 'inOutCubic');
+      /* a small anticipation and settle, so a new pose reads as a move and not a swap */
+      api.seq(kg, 'sy', [0.975, 1.018, 0.996, 1], t - 0.06, 0.1, 'inOutCubic');
+      api.seq(kg, 'rot', [-0.9 * lean, 0.7 * lean, 0], t - 0.06, 0.14, 'inOutCubic');
     };
     A.pose(o.pose || first);
     /* life: a bob while this actor's line plays, and a blink-beat every few seconds */
@@ -7572,28 +7580,41 @@ window.TDF_ART_BOARD={"easel":{"x":0.05,"y":0.2,"w":0.9,"h":0.47},"sign":{"x":0.
       g.__mg.g.x = x0; g.__mg.g.dirty = true;
       api.tw(g, { o: 1 }, tIn, 0.15);
       api.tw(g, { x: o.x == null ? mark.x : o.x }, tIn, o.enter.dur || 1.1, 'outCubic');
-      /* walking bob */
+      /* walking bob and waddle */
       api.seq(g, 'y', [mark.y - 10, mark.y, mark.y - 10, mark.y, mark.y - 8, mark.y], tIn, (o.enter.dur || 1.1) / 6, 'inOutCubic');
+      api.seq(kg, 'rot', [-2, 2, -2, 2, -1, 0], tIn, (o.enter.dur || 1.1) / 6, 'inOutCubic');
       onFrom = tIn + (o.enter.dur || 1.1);
     }
     A.exit = function (t, side, dur) {
       side = side || (isE ? 'left' : 'right'); dur = dur || 1.1;
       api.tw(g, { x: side === 'left' ? S.WING.l : S.WING.r }, t, dur, 'inCubic');
       api.seq(g, 'y', [mark.y - 10, mark.y, mark.y - 10, mark.y, mark.y - 8, mark.y], t, dur / 6, 'inOutCubic');
+      api.seq(kg, 'rot', [-2, 2, -2, 2, -1, 0], t, dur / 6, 'inOutCubic');
       api.tw(g, { o: 0 }, t + dur - 0.1, 0.1);
       tEnd = t;
     };
-    A.walk = function (x, t, dur) { api.tw(g, { x: x }, t, dur || 1, 'inOutCubic'); api.seq(g, 'y', [mark.y - 9, mark.y, mark.y - 9, mark.y], t, (dur || 1) / 4, 'inOutCubic'); };
+    A.walk = function (x, t, dur) { api.tw(g, { x: x }, t, dur || 1, 'inOutCubic'); api.seq(g, 'y', [mark.y - 9, mark.y, mark.y - 9, mark.y], t, (dur || 1) / 4, 'inOutCubic'); api.seq(kg, 'rot', [-1.8, 1.8, -1.2, 0], t, (dur || 1) / 4, 'inOutCubic'); };
     A.hop = function (t) { api.seq(g, 'y', [mark.y - 40, mark.y], t, 0.22, 'outCubic'); api.seq(g, 'sy', [0.94, 1.04, 1], t + 0.44, 0.1, 'outCubic'); };
     A.life = function () {
-      var i, l, t0, t1, c;
+      var i, l, t0, t1, c, k, end = Math.min(api.dur + 2, tEnd + 1.2);
+      /* talking: a lean toward the listener as the line starts, small uneven nods while it plays, settle at the end */
       for (i = 0; i < lt.length; i++) {
         l = lt[i]; if (l[2] !== code) continue;
         t0 = Math.max(l[0], onFrom); t1 = Math.min(l[1], tEnd);
-        for (c = t0; c + 0.5 < t1; c += 1.12) api.seq(g, 'sy', [1.018, 0.988, 1.012, 1], c, 0.28, 'inOutCubic');
-        if (t1 > t0) api.seq(g, 'sy', [1, 1], t1 - 0.1, 0.05);
+        if (t1 - t0 < 0.3) continue;
+        api.tw(tgp, { rot: 1.4 * lean }, t0 - 0.1, 0.45, 'outCubic');
+        for (c = t0 + 0.15, k = 0; c + 0.6 < t1; k++) {
+          var each = [0.26, 0.31, 0.22, 0.34][k % 4], amp = [1.014, 1.02, 1.011, 1.017][(k + (isE ? 0 : 2)) % 4];
+          api.seq(tgp, 'sy', [amp, 0.994, 1], c, each, 'inOutCubic');
+          c += each * 3 + [0.18, 0.42, 0.1, 0.3][k % 4];
+        }
+        api.tw(tgp, { sy: 1 }, t1 - 0.12, 0.12, 'inOutCubic');
+        api.tw(tgp, { rot: 0 }, t1, 0.6, 'inOutCubic');
       }
-      for (c = 2.6 + (isE ? 0 : 1.7); c < Math.min(api.dur, tEnd); c += 4.3) api.seq(g, 'sy', [0.972, 1], c, 0.06, 'inOutCubic');
+      /* idle: slow breathing and a slight weight shift, always on, out of phase between the two actors */
+      var ph = isE ? 0 : 0.9;
+      for (c = -1 + ph, k = 0; c < end; k++) { api.tw(ig, { sy: k % 2 ? 1 : 1.009 }, c, 1.7, 'inOutCubic'); c += 1.7; }
+      for (c = -1 + ph * 1.7, k = 0; c < end; k++) { api.tw(ig, { rot: k % 2 ? -0.55 : 0.55 }, c, 2.6, 'inOutCubic'); c += 2.6; }
     };
     S._lifers = S._lifers || [];
     S._lifers.push(A);
@@ -7614,10 +7635,11 @@ window.TDF_ART_BOARD={"easel":{"x":0.05,"y":0.2,"w":0.9,"h":0.47},"sign":{"x":0.
     var sz = S.size(name, { h: o.h, w: o.w }), layer = S.L[o.layer || 'mid'];
     var x = o.x == null ? 500 : o.x, y = o.y == null ? 905 : o.y;
     var g = api.group(layer, { x: x, y: y, o: 1 });
-    var inner = api.group(g, { x: 0, y: 0 });
-    var el = img(api, inner, name, sz.w, sz.h, -sz.w / 2, -sz.h);
-    var P = { g: g, inner: inner, el: el, w: sz.w, h: sz.h, x: x, y: y, name: name };
     var mode = o['in'] || 'loft', t = o.t == null ? 0 : o.t, dur = o.dur || 0.9;
+    var hg = api.group(g, { oy: -sz.h });
+    var inner = api.group(hg, { x: 0, y: 0 });
+    var el = img(api, inner, name, sz.w, sz.h, -sz.w / 2, -sz.h);
+    var P = { g: g, hg: hg, inner: inner, el: el, w: sz.w, h: sz.h, x: x, y: y, name: name };
     P.line = null;
     if (mode === 'loft') {
       /* hangs on a line from the fly loft: the line stays attached, so it reads as rigged */
@@ -7629,6 +7651,7 @@ window.TDF_ART_BOARD={"easel":{"x":0.05,"y":0.2,"w":0.9,"h":0.47},"sign":{"x":0.
       /* a little settle at the end of the drop */
       api.seq(g, 'y', [y - 10, y], t + dur, 0.14, 'inOutCubic');
       api.seq(P.line, 'y2', [y - sz.h - 10, y - sz.h], t + dur, 0.14, 'inOutCubic');
+      if (o.pendulum !== false) S.pendulum(api, hg, t + dur + 0.25, sz.w);
     } else if (mode === 'left' || mode === 'right') {
       g.__mg.g.x = mode === 'left' ? S.WING.l : S.WING.r; g.__mg.g.dirty = true;
       api.tw(g, { x: x }, t, dur, 'outCubic');
@@ -7671,6 +7694,13 @@ window.TDF_ART_BOARD={"easel":{"x":0.05,"y":0.2,"w":0.9,"h":0.47},"sign":{"x":0.
     P.wobble = function (t0) { api.seq(inner, 'rot', [-4, 4, -2, 0], t0, 0.08, 'linear'); };
     P.bounce = function (t0) { api.seq(g, 'y', [y - 26, y], t0, 0.18, 'outCubic'); api.seq(g, 'sy', [0.94, 1.03, 1], t0 + 0.36, 0.08, 'outCubic'); };
     return P;
+  };
+
+  /* a slow swing on a hanging piece (pivot at its top): smaller for wide pieces, so the corners never travel far */
+  S.pendulum = function (api, tg, t0, w) {
+    var a = Math.max(0.25, Math.min(0.9, 260 / (w || 400))), c, k, per = 1.9 + (w || 400) / 900, end = api.dur + 2;
+    api.tw(tg, { rot: a }, t0, per / 2, 'outCubic');
+    for (c = t0 + per / 2, k = 0; c < end; k++) { api.tw(tg, { rot: k % 2 ? a : -a }, c, per, 'inOutCubic'); c += per; }
   };
 
   /* ---------- text on the set pieces ---------- */
@@ -7725,15 +7755,17 @@ window.TDF_ART_BOARD={"easel":{"x":0.05,"y":0.2,"w":0.9,"h":0.47},"sign":{"x":0.
     var layer = S.L[o.layer || 'front'];
     var line = api.el('line', { x1: x, y1: -20, x2: x, y2: S.LOFT, stroke: S.PAL.rope, 'stroke-width': 3, opacity: 0.9 }, layer);
     var g = api.group(layer, { x: x, y: S.LOFT });
-    api.rect(g, -w / 2 + 5, -h + 9, w, h, { rx: 18, fill: '#000', opacity: 0.25 });
-    api.rect(g, -w / 2, -h, w, h, { rx: 18, fill: o.fill || S.PAL.cream, stroke: o.stroke || '#c9b78f', 'stroke-width': 4 });
+    var pv = api.group(g, { oy: -h });
+    api.rect(pv, -w / 2 + 5, -h + 9, w, h, { rx: 18, fill: '#000', opacity: 0.25 });
+    api.rect(pv, -w / 2, -h, w, h, { rx: 18, fill: o.fill || S.PAL.cream, stroke: o.stroke || '#c9b78f', 'stroke-width': 4 });
     /* two eyelets */
-    api.circle(g, -w / 2 + 26, -h + 22, 6, { fill: '#9a8560' }); api.circle(g, w / 2 - 26, -h + 22, 6, { fill: '#9a8560' });
+    api.circle(pv, -w / 2 + 26, -h + 22, 6, { fill: '#9a8560' }); api.circle(pv, w / 2 - 26, -h + 22, 6, { fill: '#9a8560' });
     var t = o.t || 0, dur = o.dur || 0.9;
+    if (o.pendulum !== false) S.pendulum(api, pv, t + dur + 0.25, w * 1.6);
     api.tw(g, { y: y }, t, dur, 'outCubic'); api.tw(line, { y2: y - h }, t, dur, 'outCubic');
     api.seq(g, 'y', [y - 8, y], t + dur, 0.14, 'inOutCubic'); api.seq(line, 'y2', [y - h - 8, y - h], t + dur, 0.14, 'inOutCubic');
-    var inner = api.group(g, { x: -w / 2, y: -h });
-    var P = { g: g, inner: inner, line: line, w: w, h: h, x: x, y: y };
+    var inner = api.group(pv, { x: -w / 2, y: -h });
+    var P = { g: g, pv: pv, inner: inner, line: line, w: w, h: h, x: x, y: y };
     P.out = function (tOut, d) { d = d || 0.8; api.tw(g, { y: S.LOFT }, tOut, d, 'inCubic'); api.tw(line, { y2: S.LOFT - h }, tOut, d, 'inCubic'); };
     if (o.out != null) P.out(o.out);
     if (build) build(inner, w, h, P);
