@@ -5,6 +5,16 @@
   var mq = window.matchMedia ? window.matchMedia("(display-mode: standalone)") : null;
   function standalone() { return !!((mq && mq.matches) || navigator.standalone); }
   var deferred = null, audio = { done: 0, total: 16, error: false, known: false, waiting: false, mb: 0 };
+  /* Ask the browser to keep the saved data the first time the reader answers a question or marks a ride done (once). */
+  var persistAsked = false;
+  function askPersist() {
+    if (persistAsked) return; persistAsked = true;
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function () {}); } catch (e) {}
+  }
+  document.addEventListener("click", function (e) {
+    var t = e.target; if (!t || !t.closest) return;
+    if (t.closest(".quiz .opt, .done-btn")) askPersist();
+  }, true);
   var consent = false, later = false; /* this visit only: the reader said yes / not now to downloading on mobile data */
   var ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M12 7v7"/><path d="m9 11.5 3 3 3-3"/></svg>';
   function toast(t) { var el = document.getElementById("toast"); if (!el) return; el.textContent = t; el.classList.add("show"); clearTimeout(toast._t); toast._t = setTimeout(function () { el.classList.remove("show"); }, 2600); }
@@ -132,7 +142,7 @@
       audio.waiting = false;
     }
     if (!was && audio.done >= audio.total && audio.total) {
-      if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function () {});
+      askPersist();
     }
     paint();
   });
