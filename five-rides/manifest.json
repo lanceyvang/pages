@@ -43,9 +43,10 @@
   ],
   "shortcuts": [
     {
-      "name": "Ride 1: Ideas",
-      "short_name": "Ride 1",
-      "url": "./#lesson-1",
+      "name": "Continue where you left off",
+      "short_name": "Continue",
+      "url": "./#continue",
+      "description": "Jump back to the ride you were on, or ride 1 if you're just starting",
       "icons": [
         {
           "src": "icons/icon-192.png",
@@ -55,9 +56,10 @@
       ]
     },
     {
-      "name": "Ride 2: Data",
-      "short_name": "Ride 2",
-      "url": "./#lesson-2",
+      "name": "Cheat sheet",
+      "short_name": "Cheat sheet",
+      "url": "./#cheat",
+      "description": "The whole course on one screen, for the last ride before the exam",
       "icons": [
         {
           "src": "icons/icon-192.png",
@@ -67,9 +69,10 @@
       ]
     },
     {
-      "name": "Ride 3: Charts",
-      "short_name": "Ride 3",
-      "url": "./#lesson-3",
+      "name": "Mixed review quiz",
+      "short_name": "Mixed review",
+      "url": "./#mixed-review",
+      "description": "Questions from every domain, like the real exam",
       "icons": [
         {
           "src": "icons/icon-192.png",
@@ -79,9 +82,10 @@
       ]
     },
     {
-      "name": "Ride 4: Analyze",
-      "short_name": "Ride 4",
-      "url": "./#lesson-4",
+      "name": "Ride 5: Share",
+      "short_name": "Ride 5",
+      "url": "./#lesson-5",
+      "description": "Sharing insights, 25%% of the exam",
       "icons": [
         {
           "src": "icons/icon-192.png",
