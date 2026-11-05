@@ -4,7 +4,7 @@
    re-downloads that file. The page asks for the download ("fill") and checks how
    much is left ("status"); files are fetched one at a time, so a dropped signal
    only loses one file. */
-const VERSION = "d238b982b0";
+const VERSION = "b5ed2b57a7";
 const CORE = "five-rides-core-" + VERSION;
 const AUDIO = "five-rides-audio";
 const HASH = "X-Five-Rides-Hash";
